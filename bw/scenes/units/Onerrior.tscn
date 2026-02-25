@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://dntm7gvnrjt1q"]
+
+[ext_resource type="Script" uid="uid://d0sgi1d8q3pe8" path="res://scripts/units/Unit.gd" id="1_rpwae"]
+[ext_resource type="Texture2D" uid="uid://dwyn7v3qjwq8s" path="res://assets/sprites/units/pixel1.png" id="1_tm5vm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rpwae"]
+size = Vector2(72, 84)
+
+[node name="Onerrior" type="Node2D" unique_id=156615112]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=248226540]
+script = ExtResource("1_rpwae")
+
+[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D" unique_id=1595035825]
+position = Vector2(470, 259)
+scale = Vector2(1.073, 1)
+texture = ExtResource("1_tm5vm")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=348075951]
+position = Vector2(543, 328)
+shape = SubResource("RectangleShape2D_rpwae")

@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://81174i3ia4ka"]
+
+[ext_resource type="PackedScene" uid="uid://cag766de2f1ly" path="res://scenes/game/Map.tscn" id="1_klkup"]
+[ext_resource type="PackedScene" uid="uid://dntm7gvnrjt1q" path="res://scenes/units/Onerrior.tscn" id="2_m44fu"]
+
+[node name="Game" type="Node2D" unique_id=872508359]
+
+[node name="Map" parent="." unique_id=704113698 instance=ExtResource("1_klkup")]
+
+[node name="Onerrior" parent="Map" unique_id=156615112 instance=ExtResource("2_m44fu")]
+position = Vector2(106, -7)
