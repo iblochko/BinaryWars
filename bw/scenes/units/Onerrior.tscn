@@ -14,11 +14,11 @@ position = Vector2(2, -2)
 script = ExtResource("1_rpwae")
 
 [node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D" unique_id=1595035825]
-position = Vector2(-68, -71)
+position = Vector2(-37, -37)
 scale = Vector2(1.026125, 1)
 texture = ExtResource("1_tm5vm")
 centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=348075951]
-position = Vector2(-22, -23)
+position = Vector2(-3, -1)
 shape = SubResource("RectangleShape2D_rpwae")
