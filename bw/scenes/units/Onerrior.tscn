@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://d0sgi1d8q3pe8" path="res://scripts/units/Unit.gd" id="1_rpwae"]
 [ext_resource type="Texture2D" uid="uid://dwyn7v3qjwq8s" path="res://assets/sprites/units/pixel1.png" id="1_tm5vm"]
+[ext_resource type="Texture2D" uid="uid://h3lq8wytqtuu" path="res://assets/sprites/units/items/noob_sword.png" id="3_nwwhx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rpwae"]
 size = Vector2(64, 64)
@@ -22,3 +23,8 @@ centered = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=348075951]
 position = Vector2(-22, -23)
 shape = SubResource("RectangleShape2D_rpwae")
+
+[node name="Item" type="Sprite2D" parent="CharacterBody2D" unique_id=620939495]
+position = Vector2(-48, -33)
+scale = Vector2(2.375, 2.375)
+texture = ExtResource("3_nwwhx")
