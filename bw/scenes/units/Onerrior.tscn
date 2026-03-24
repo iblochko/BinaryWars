@@ -25,6 +25,6 @@ position = Vector2(-3, -1)
 shape = SubResource("RectangleShape2D_rpwae")
 
 [node name="Item" type="Sprite2D" parent="CharacterBody2D" unique_id=620939495]
-position = Vector2(-48, -33)
+position = Vector2(-20, -2)
 scale = Vector2(2.375, 2.375)
 texture = ExtResource("3_nwwhx")
