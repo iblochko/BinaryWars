@@ -8,4 +8,4 @@
 [node name="Map" parent="." unique_id=704113698 instance=ExtResource("1_klkup")]
 
 [node name="Onerrior" parent="Map" unique_id=156615112 instance=ExtResource("2_m44fu")]
-position = Vector2(106, -7)
+position = Vector2(-1115, -600)

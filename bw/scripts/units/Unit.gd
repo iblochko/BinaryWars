@@ -27,6 +27,15 @@ func _ready():
 	
 	print("Юнит создан на клетке: ", current_cell)
 
+	# Важно: позиция юнита должна быть ВЫРАВНЕНА по клеткам
+	# Если размер клетки 64x64:
+	position = Vector2(0 * 64, 0 * 64)  # Клетка (6, 0)
+	
+	# Или используйте:
+	position = map_manager.get_cell_world_position(Vector2i(0, 0))
+	
+	# Теперь координаты будут корректными
+	print("Юнит создан на клетке: ", map_manager.get_cell_at_position(position))
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
 				# Проверяем, попал ли клик в коллизию

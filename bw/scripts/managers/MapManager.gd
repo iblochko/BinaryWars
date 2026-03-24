@@ -13,6 +13,12 @@ var units_on_map: Dictionary = {}  # cell_pos → unit
 @export var cell_size: int = 64
 
 func _ready():
+	
+		# Установите смещение карты
+	tile_map.position = Vector2(0, 0)
+	
+	# Или если нужно сместить:
+	# tile_map.position = Vector2(-32, -32)  # Центрирование
 	# Регистрируем в группе для доступа из других скриптов
 	add_to_group("map_manager")
 	
@@ -20,6 +26,35 @@ func _ready():
 	load_map_data()
 	
 	print("Менеджер карты готов!")
+	print("ID тайла на клетке (0, 0): ", get_tile_id_at_cell(Vector2i(0, 0)))
+	print("ID тайла на клетке (-18, -9): ", get_tile_id_at_cell(Vector2i(-18, -9)))
+
+func get_tile_id_at_cell(cell: Vector2i) -> int:
+	if tile_map == null:
+		return -1
+	return tile_map.get_cell_source_id(0, cell)
+
+func get_tile_id_at_position(world_pos: Vector2) -> int:
+	var cell = get_cell_at_position(world_pos)
+	return tile_map.get_cell_source_id(0, cell)
+
+func _input(event):
+	if event is InputEventMouseButton and event.pressed:
+		var mouse_pos = get_global_mouse_position()
+		var cell = get_cell_at_position(mouse_pos)
+		
+		# Выводим координаты клетки
+		print("Клик по клетке: ", cell)
+		print("  Мировые координаты: ", mouse_pos)
+	
+		if units_on_map.has(cell):
+			var unit = units_on_map[cell]
+			print("  На клетке есть юнит: ", unit.name)
+			emit_signal("unit_selected", unit)
+		else:
+			# Клик по пустой клетке — перемещение
+			print("  Клетка пустая")
+			handle_cell_click(cell)
 
 func load_map_data():
 	# Проверяем, что tile_map установлен
@@ -46,20 +81,16 @@ func load_map_data():
 			var tile_id = tile_map.get_cell_source_id(0, cell)
 			
 			match tile_id:
-				0:  # Трава
-					terrain_type = "grass"
+				1:  
+					terrain_type = "bus"
 					movement_cost = 1.0
 					is_passable = true
-				1:  # Вода
-					terrain_type = "water"
-					movement_cost = -1.0
-					is_passable = false
-				2:  # Горы
-					terrain_type = "mountain"
+				0:
+					terrain_type = "field"
 					movement_cost = -1.0
 					is_passable = false
 				_:  # По умолчанию
-					terrain_type = "grass"
+					terrain_type = "bus"
 					movement_cost = 1.0
 					is_passable = true
 		else:
@@ -76,20 +107,20 @@ func load_map_data():
 	
 	print("Загружено клеток: ", grid.size())
 
+# Используем правильный размер клетки (16)
 func get_cell_at_position(world_pos: Vector2) -> Vector2i:
-	# Проверяем, что tile_map установлен
 	if tile_map == null:
 		return Vector2i.ZERO
 	
-	# Преобразуем мировые координаты в координаты клетки
-	return tile_map.local_to_map(world_pos)
+	var local_pos = tile_map.to_local(world_pos)
+	
+	return tile_map.local_to_map(local_pos)
 
 func get_cell_world_position(cell: Vector2i) -> Vector2:
-	# Проверяем, что tile_map установлен
 	if tile_map == null:
 		return Vector2.ZERO
 	
-	# Преобразуем координаты клетки в мировые координаты
+	# Правильное преобразование
 	return tile_map.map_to_local(cell)
 
 func is_passable(cell: Vector2i) -> bool:
@@ -119,18 +150,6 @@ func move_unit(unit, from_cell: Vector2i, to_cell: Vector2i):
 	# Сигнал о перемещении
 	emit_signal("unit_moved", unit, from_cell, to_cell)
 
-func _input(event):
-	if event is InputEventMouseButton and event.pressed:
-		var mouse_pos = get_global_mouse_position()
-		var cell = get_cell_at_position(mouse_pos)
-		
-		# Проверяем, кликнули ли на юнита
-		if units_on_map.has(cell):
-			var unit = units_on_map[cell]
-			emit_signal("unit_selected", unit)
-		else:
-			# Клик по пустой клетке — перемещение
-			handle_cell_click(cell)
 
 func handle_cell_click(cell: Vector2i):
 	# Находим выделенного юнита
