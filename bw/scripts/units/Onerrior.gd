@@ -1,31 +1,48 @@
 # Onerrior.gd
-extends CharacterBody2D
+extends "res://scripts/units/Unit.gd"  # ← Наследуемся от базового класса
 
-# Параметры юнита
-@export var speed: float = 100.0  # Скорость движения
-@export var health: int = 100     # Здоровье
-@export var attack: int = 10      # Атака
+# === Уникальные характеристики ===
+@export var health: int = 100
+@export var max_health: int = 100
+@export var attack: int = 10
+@export var defense: int = 5
+@export var attack_range: int = 1  # Клеток
 
-func _ready():
-	print("Воин создан! Здоровье: ", health)
+# === Инициализация ===
+func _on_unit_ready():
+	print("⚔️ Воин создан! Здоровье: ", health, " Атака: ", attack)
+	# Здесь можно настроить уникальные визуальные эффекты
 
-func _process(delta):
-	# Получаем направление движения (стрелки)
-	var direction = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	
-	# Устанавливаем скорость
-	velocity = direction * speed
-	
-	# Двигаем юнита
-	move_and_slide()
-
+# === Уникальные способности ===
 func take_damage(amount: int):
-	health = max(0, health - amount)
-	print("Получено ", amount, " урона. Осталось: ", health)
+	var actual_damage = max(0, amount - defense)
+	health = max(0, health - actual_damage)
+	print("🛡️ Воин получил ", actual_damage, " урона. Осталось: ", health)
 	
 	if health <= 0:
 		die()
 
+func attack_target(target_unit: BaseUnit):
+	if target_unit == null:
+		return
+	
+	var distance = _get_distance_to(target_unit.current_cell)
+	if distance <= attack_range:
+		target_unit.take_damage(attack)
+		print("⚔️ Атака по цели! Урон: ", attack)
+	else:
+		print("❌ Цель слишком далеко!")
+
+func _get_distance_to(cell: Vector2i) -> int:
+	return abs(current_cell.x - cell.x) + abs(current_cell.y - cell.y)
+
 func die():
-	print("Воин умер!")
-	queue_free()  # Удаляем юнита из сцены
+	print("💀 Воин погиб!")
+	if map_manager:
+		map_manager.unregister_unit(current_cell)
+	queue_free()
+
+# === Хук после движения ===
+func _on_movement_finished():
+	# Например, восстанавливать броню после хода
+	print(" Воин завершил движение")

@@ -38,6 +38,75 @@ func get_tile_id_at_position(world_pos: Vector2) -> int:
 	var cell = get_cell_at_position(world_pos)
 	return tile_map.get_cell_source_id(0, cell)
 
+# Визуализация доступных клеток для перемещения
+func highlight_moveable_cells(center_cell: Vector2i, range: int):
+	var cells = get_cells_in_range(center_cell, range)
+	for cell in cells:
+		if is_passable(cell) and not is_cell_occupied(cell):
+			# Здесь можно добавить визуальный эффект (например, изменить цвет тайла)
+			print("Доступна клетка: ", cell)
+
+# Добавь эти функции в MapManager.gd
+
+# Проверка валидности перемещения с учётом дальности
+func validate_move(from_cell: Vector2i, to_cell: Vector2i, max_range: int) -> bool:
+	if not is_passable(to_cell):
+		print("❌ Клетка непроходима")
+		return false
+	if is_cell_occupied(to_cell):
+		print("❌ Клетка занята")
+		return false
+	
+	# Манхэттенское расстояние
+	var distance = abs(to_cell.x - from_cell.x) + abs(to_cell.y - from_cell.y)
+	if distance > max_range:
+		print("❌ Слишком далеко")
+		return false
+	
+	return true
+
+# Поиск пути (простой BFS для начала)
+func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int) -> Array[Vector2i]:
+	var path: Array[Vector2i] = []
+	
+	if not validate_move(from_cell, to_cell, max_range):
+		return path
+	
+	# Для начала — прямой путь (можно улучшить алгоритмом A*)
+	var current = from_cell
+	while current != to_cell:
+		path.append(current)
+		
+		# Двигаемся по оси X сначала
+		if current.x < to_cell.x:
+			current.x += 1
+		elif current.x > to_cell.x:
+			current.x -= 1
+		# Потом по оси Y
+		elif current.y < to_cell.y:
+			current.y += 1
+		elif current.y > to_cell.y:
+			current.y -= 1
+	
+	path.append(to_cell)
+	return path
+
+# Обновлённая handle_cell_click
+func handle_cell_click(cell: Vector2i):
+	var selected_unit = get_selected_unit()
+	if not selected_unit:
+		return
+	
+	# Запрашиваем путь у MapManager
+	var path = find_path(selected_unit.current_cell, cell, selected_unit.current_movement)
+	
+	if path.is_empty():
+		print("❌ Невозможно переместиться")
+		return
+	
+	# Передаём путь юниту
+	selected_unit.move_along_path(path)
+
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
 		var mouse_pos = get_global_mouse_position()
@@ -149,14 +218,6 @@ func move_unit(unit, from_cell: Vector2i, to_cell: Vector2i):
 	
 	# Сигнал о перемещении
 	emit_signal("unit_moved", unit, from_cell, to_cell)
-
-
-func handle_cell_click(cell: Vector2i):
-	# Находим выделенного юнита
-	var selected_unit = get_selected_unit()
-	
-	if selected_unit:
-		selected_unit.try_move_to_cell(cell)
 
 func get_selected_unit():
 	var all_units = get_tree().get_nodes_in_group("units")

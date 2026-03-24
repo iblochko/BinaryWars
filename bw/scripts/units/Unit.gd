@@ -1,149 +1,164 @@
-# Unit.gd
+# Unit.gd (Базовый класс)
 extends CharacterBody2D
+class_name BaseUnit  # ← Важно! Позволяет ссылаться на тип в других скриптах
 
-# Параметры юнита
-@export var movement_points: int = 2  # Сколько клеток может пройти за ход
-@export var current_movement: int = 2  # Текущие очки движения
+# === Общие параметры ===
+@export var movement_points: int = 2
+@export var move_speed: float = 300.0
 
-# Состояние
+# === Состояние ===
 var is_selected: bool = false
+var is_moving: bool = false
+var current_movement: int = 2
 var target_cell: Vector2i = Vector2i.ZERO
 var current_cell: Vector2i = Vector2i.ZERO
+var original_scale: Vector2
+var original_modulate: Color
+var movement_path: Array[Vector2i] = []
+var current_path_index: int = 0
 
-# Ссылки
+# === Ссылки ===
 var map_manager = null
 
 func _ready():
-	# Находим менеджер карты
+	original_scale = scale
+	original_modulate = modulate
+	
+	await get_tree().process_frame
+	
 	map_manager = get_tree().get_first_node_in_group("map_manager")
-	
 	if map_manager == null:
-		print("Ошибка: Не найден менеджер карты!")
+		printerr("Ошибка: Не найден менеджер карты!")
 		return
 	
-	# Регистрируем юнита в менеджере
 	current_cell = map_manager.get_cell_at_position(global_position)
+	global_position = map_manager.get_cell_world_position(current_cell)
 	map_manager.register_unit(self, current_cell)
+	add_to_group("units")
 	
-	print("Юнит создан на клетке: ", current_cell)
+	# Вызываем виртуальный метод для дочерних классов
+	_on_unit_ready()
 
-	# Важно: позиция юнита должна быть ВЫРАВНЕНА по клеткам
-	# Если размер клетки 64x64:
-	position = Vector2(0 * 64, 0 * 64)  # Клетка (6, 0)
-	
-	# Или используйте:
-	position = map_manager.get_cell_world_position(Vector2i(0, 0))
-	
-	# Теперь координаты будут корректными
-	print("Юнит создан на клетке: ", map_manager.get_cell_at_position(position))
 func _input(event):
-	if event is InputEventMouseButton and event.pressed:
-				# Проверяем, попал ли клик в коллизию
-		var mouse_pos = get_global_mouse_position()
-		var collision_shape = $CollisionShape2D
-		
-		# Отладка
-		print("Позиция мыши: ", mouse_pos)
-		print("Позиция коллизии: ", collision_shape.global_position)
-		print("Размер коллизии: ", collision_shape.shape.extents)
-		
-		# Проверяем, попадает ли клик в коллизию
-		var shape = collision_shape.shape
-		if shape and shape is RectangleShape2D:
-			var rect = shape.extents * 2
-			var rect_pos = collision_shape.global_position - rect
-			
-			if mouse_pos.x > rect_pos.x and mouse_pos.x < rect_pos.x + rect.x and \
-			mouse_pos.y > rect_pos.y and mouse_pos.y < rect_pos.y + rect.y:
-				print("Клик попал в коллизию!")
-				select_unit()
-
-	# Проверяем клик только если юнит видим и активен
-	if not visible or not is_inside_tree():
-		return
-	
-	# Клик по юниту (выбор)
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var mouse_pos = get_global_mouse_position()
 		
-		# Проверяем, попал ли клик в юнита
-		if global_position.distance_to(mouse_pos) < 32:
+		# Проверяем клик по юниту (независимо от выделения)
+		if global_position.distance_to(mouse_pos) < 40:
 			select_unit()
+			get_viewport().set_input_as_handled()
+			return
 
 func select_unit():
-	# Снимаем выделение со всех юнитов
 	var all_units = get_tree().get_nodes_in_group("units")
 	for unit in all_units:
-		unit.is_selected = false
-		unit.update_indicator(false)
+		if unit != self:
+			unit.is_selected = false
+			unit._update_visuals()
 	
-	# Выделяем текущего юнита
 	is_selected = true
-	update_indicator(true)
-	
-	print("Выбран юнит на клетке: ", current_cell)
-	print("Осталось ходов: ", current_movement)
+	_update_visuals()
 
-func update_indicator(show: bool):
-	# Показываем/скрываем индикатор выделения
-	if has_node("SelectionIndicator"):
-		$SelectionIndicator.visible = show
+func _update_visuals():
+	if is_selected:
+		modulate = Color(0.5, 1, 0.5, 1)
+		scale = original_scale * 1.2
+	else:
+		modulate = original_modulate
+		scale = original_scale
+
+func _move_to_target(delta):
+	if map_manager == null:
+		return
+	
+	var target_pos = map_manager.get_cell_world_position(target_cell)
+	var distance = global_position.distance_to(target_pos)
+	
+	if distance < 2.0:
+		global_position = target_pos
+		_on_arrived()
+	else:
+		var direction = (target_pos - global_position).normalized()
+		global_position += direction * move_speed * delta
+
+func _on_arrived():
+	map_manager.unregister_unit(current_cell)
+	current_cell = target_cell
+	map_manager.register_unit(self, current_cell)
+	
+	target_cell = Vector2i.ZERO
+	is_moving = false
+	current_movement -= 1
+	
+	if current_movement <= 0:
+		deselect()
+	else:
+		_update_visuals()
+	
+	# Вызываем метод для дочерних классов
+	_on_movement_finished()
+
+func move_along_path(path: Array[Vector2i]):
+	if path.is_empty():
+		return
+	
+	movement_path = path
+	current_path_index = 0
+	is_moving = true
+	
+	print("🛤️ Получен путь из ", path.size(), " клеток")
+
+func _process(delta):
+	if is_moving and movement_path.size() > 0:
+		_move_along_path(delta)
+
+func _move_along_path(delta):
+	if current_path_index >= movement_path.size():
+		_on_path_completed()
+		return
+	
+	var target_cell = movement_path[current_path_index]
+	var target_pos = map_manager.get_cell_world_position(target_cell)
+	var distance = global_position.distance_to(target_pos)
+	
+	if distance < 2.0:
+		# Достигли промежуточной клетки
+		current_path_index += 1
+	else:
+		# Двигаемся к ней
+		var direction = (target_pos - global_position).normalized()
+		global_position += direction * move_speed * delta
+
+func _on_path_completed():
+	# Обновляем регистрацию
+	map_manager.unregister_unit(current_cell)
+	current_cell = movement_path[-1]  # Последняя клетка пути
+	map_manager.register_unit(self, current_cell)
+	
+	movement_path.clear()
+	current_path_index = 0
+	is_moving = false
+	current_movement -= 1
+	
+	print("✅ Прибыл на: ", current_cell)
+	
+	if current_movement <= 0:
+		deselect()
+	else:
+		_update_visuals()
 
 func deselect():
 	is_selected = false
-	update_indicator(false)
+	is_moving = false
 	target_cell = Vector2i.ZERO
+	_update_visuals()
 
-func _process(delta):
-	# Если есть цель — двигаемся к ней
-	if target_cell != Vector2i.ZERO:
-		move_to_target(delta)
-
-func move_to_target(delta):
-	var target_world_pos = map_manager.get_cell_world_position(target_cell)
-	
-	# Плавное движение к цели
-	global_position = global_position.move_toward(target_world_pos, 200 * delta)
-	
-	# Проверяем, достигли ли цели
-	if global_position.distance_to(target_world_pos) < 1:
-		on_arrived_at_target()
-
-func on_arrived_at_target():
-	# Обновляем текущую клетку
-	current_cell = target_cell
-	target_cell = Vector2i.ZERO
-	
-	# Расходуем очки движения
-	current_movement -= 1
-	
-	print("Юнит прибыл на клетку: ", current_cell)
-	print("Осталось ходов: ", current_movement)
-	
-	# Если закончились ходы — снимаем выделение
-	if current_movement <= 0:
-		deselect()
-
-func try_move_to_cell(cell: Vector2i):
-	# Проверяем, можно ли идти на эту клетку
-	if not map_manager.is_passable(cell):
-		print("Клетка непроходима!")
-		return false
-	
-	if map_manager.is_cell_occupied(cell):
-		print("Клетка занята другим юнитом!")
-		return false
-	
-	if current_movement <= 0:
-		print("Нет очков движения!")
-		return false
-	
-	# Устанавливаем цель
-	target_cell = cell
-	print("Юнит идёт на клетку: ", cell)
-	
-# В скрипте юнита
 func reset_movement():
 	current_movement = movement_points
-	print("Ходы восстановлены!")
-	return true
+
+# === ВИРТУАЛЬНЫЕ МЕТОДЫ (переопределяются в наследниках) ===
+func _on_unit_ready():
+	pass  # Пустая реализация
+
+func _on_movement_finished():
+	pass  # Пустая реализация
