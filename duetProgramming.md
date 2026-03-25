@@ -88,7 +88,6 @@
 ## Приложение: Ключевые фрагменты кода
 
 ### Логика урона с бронёй — `Onerrior.gd`
-*Функцию реализовал Партнёр Б после того, как Партнёр А написал тест:*
 
 ```gdscript
 func take_damage(amount: int):
@@ -100,7 +99,6 @@ func take_damage(amount: int):
 ```
 
 ### Тесты для `take_damage` — `node.gd`
-*Функцию написал Партнёр А в стиле «Пинг-понг»:*
 
 ```gdscript
 func test_warrior_take_damage():
@@ -125,7 +123,6 @@ func test_warrior_take_damage():
 ```
 
 ### Тесты для `find_path` — `node.gd`
-*Функцию написал Партнёр Б после смены ролей:*
 
 ```gdscript
 func test_map_manager_logic():
