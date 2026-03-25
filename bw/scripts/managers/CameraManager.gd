@@ -9,7 +9,7 @@ extends Camera2D
 var _velocity = Vector2.ZERO
 
 func _unhandled_input(event):
-	# Зум колесиком мыши
+	#колесиком мыши
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			_zoom_camera(1 + zoom_speed)
@@ -24,7 +24,7 @@ func _zoom_camera(factor):
 	zoom = Vector2(new_zoom_x, new_zoom_y)
 
 func _process(delta):
-	# Движение камеры стрелочками
+	#стрелочками
 	var direction = Vector2.ZERO
 	
 	if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
@@ -36,12 +36,9 @@ func _process(delta):
 	if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
 		direction.y += 1
 	
-	# Нормализуем вектор направления
 	if direction.length() > 0:
 		direction = direction.normalized()
 	
-	# Плавное движение с ускорением
 	_velocity = _velocity.move_toward(direction * move_speed, move_acceleration * delta)
-	
-	# Двигаем камеру (учитываем зум)
+
 	position += _velocity * delta * 100 * zoom.x

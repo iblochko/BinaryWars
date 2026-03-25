@@ -22,7 +22,6 @@ func get_tile_id_at_cell(cell: Vector2i) -> int:
 		return -1
 	return tile_map.get_cell_source_id(0, cell)
 
-# === ПОДСВЕТКА КЛЕТОК ===
 func highlight_available_cells(center_cell: Vector2i, range: int, unit: BaseUnit = null):
 	clear_highlight()
 	
@@ -30,21 +29,19 @@ func highlight_available_cells(center_cell: Vector2i, range: int, unit: BaseUnit
 	
 	for cell in cells:
 		if is_passable(cell) and not is_cell_occupied(cell):
-			# Передаём ignore_unit=true, чтобы юнит не блокировал сам себя
+			#передаём true, чтобы юнит не блокировал сам себя
 			var path = find_path(center_cell, cell, range, true)
 			if not path.is_empty():
 				tile_map.set_cell(1, cell, 0, Vector2i(0, 0))
-				tile_map.set_layer_modulate(1, Color(0.184, 1.0, 1.0, 0.502)) # ← Добавь это!
+				tile_map.set_layer_modulate(1, Color(0.184, 1.0, 1.0, 0.502))
 				highlighted_cells.append(cell)
 
 func clear_highlight():
 	for cell in highlighted_cells:
-		tile_map.set_cell(1, cell, -1)  # -1 удаляет тайл
+		tile_map.set_cell(1, cell, -1) 
 	highlighted_cells.clear()
 
-# === ПОИСК ПУТИ (BFS с обходом препятствий) ===
-
-# Исправленная функция поиска пути
+#поиск пути
 func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int, ignore_unit: bool = false) -> Array[Vector2i]:
 	if from_cell == to_cell:
 		return [from_cell]
@@ -52,12 +49,10 @@ func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int, ignore_un
 	if not is_passable(to_cell):
 		return []
 	
-	# Если ignore_unit = true, не проверяем занятость целевой клетки
-	# (потому что там стоит сам юнит, который хочет пойти)
+	#если ignore_unit = true, не проверяем занятость клетки
 	if not ignore_unit and is_cell_occupied(to_cell):
 		return []
 	
-	# BFS
 	var queue: Array[Vector2i] = []
 	var came_from: Dictionary = {}
 	var visited: Dictionary = {}
@@ -82,9 +77,7 @@ func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int, ignore_un
 		var neighbors = get_neighbors(current)
 		for neighbor in neighbors:
 			if not visited.has(neighbor):
-				# Проверяем проходимость
 				if is_passable(neighbor):
-					# Для промежуточных клеток тоже проверяем занятость
 					if not (ignore_unit and neighbor == from_cell) and is_cell_occupied(neighbor):
 						continue
 					
@@ -95,7 +88,7 @@ func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int, ignore_un
 	if not found:
 		return []
 	
-	# Восстанавливаем путь
+	#восстанавливаем путь
 	var path: Array[Vector2i] = []
 	var current = to_cell
 	
@@ -106,7 +99,6 @@ func find_path(from_cell: Vector2i, to_cell: Vector2i, max_range: int, ignore_un
 	path.reverse()
 	return path
 
-# === ПРОВЕРКА ВАЛИДНОСТИ ===
 func validate_move(from_cell: Vector2i, to_cell: Vector2i, max_range: int) -> bool:
 	if not is_passable(to_cell):
 		print("❌ Клетка непроходима")
@@ -123,25 +115,23 @@ func validate_move(from_cell: Vector2i, to_cell: Vector2i, max_range: int) -> bo
 	
 	return true
 
-# === ОБРАБОТКА КЛИКОВ ===
+#ОБРАБОТКА КЛИКОВ
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
 		var mouse_pos = get_global_mouse_position()
 		var cell = get_cell_at_position(mouse_pos)
-		
+		#ЛКМ = выбрать + подсветить
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if units_on_map.has(cell):
-				# Клик по юниту → ВЫДЕЛЕНИЕ + ПОДСВЕТКА
 				var unit = units_on_map[cell]
 				unit.select_unit()
 				highlight_available_cells(unit.current_cell, unit.current_movement)
 				emit_signal("unit_selected", unit)
 			else:
-				# Клик по пустой клетке → ПЕРЕМЕЩЕНИЕ
 				handle_cell_click(cell)
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			# ПКМ → отмена выделения и очистка подсветки
+			#ПКМ = отмена
 			clear_highlight()
 			var selected = get_selected_unit()
 			if selected:
@@ -154,7 +144,6 @@ func handle_cell_click(cell: Vector2i):
 	
 	clear_highlight()
 	
-	# Здесь ignore_unit=false, потому что проверяем реальное перемещение
 	if validate_move(selected_unit.current_cell, cell, selected_unit.current_movement):
 		var path = find_path(selected_unit.current_cell, cell, selected_unit.current_movement, false)
 		selected_unit.move_along_path(path)
@@ -176,11 +165,11 @@ func load_map_data():
 		var is_passable = true
 		
 		match tile_id:
-			1:  # bus
+			1:
 				terrain_type = "bus"
 				movement_cost = 1.0
 				is_passable = true
-			0:  # field (непроходимо)
+			0:
 				terrain_type = "field"
 				movement_cost = -1.0
 				is_passable = false
@@ -206,7 +195,6 @@ func get_cell_at_position(world_pos: Vector2) -> Vector2i:
 func get_cell_world_position(cell: Vector2i) -> Vector2:
 	if tile_map == null:
 		return Vector2.ZERO
-	# map_to_local() уже возвращает центр клетки!
 	return tile_map.map_to_local(cell)
 
 func is_passable(cell: Vector2i) -> bool:

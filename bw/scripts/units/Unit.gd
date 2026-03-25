@@ -1,4 +1,4 @@
-# Unit.gd (Базовый класс)
+# Unit.gd
 extends CharacterBody2D
 class_name BaseUnit
 
@@ -28,20 +28,12 @@ func _ready():
 		return
 	
 	current_cell = map_manager.get_cell_at_position(global_position)
+	#выравнивание по центру клетки
 	global_position = map_manager.get_cell_world_position(current_cell)
 	map_manager.register_unit(self, current_cell)
 	add_to_group("units")
 	
 	_on_unit_ready()
-
-func _input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var mouse_pos = get_global_mouse_position()
-		
-		if global_position.distance_to(mouse_pos) < 40:
-			select_unit()
-			get_viewport().set_input_as_handled()
-			return
 
 func select_unit():
 	var all_units = get_tree().get_nodes_in_group("units")
@@ -53,13 +45,13 @@ func select_unit():
 	is_selected = true
 	_update_visuals()
 	
-	# Передаём себя, чтобы MapManager игнорировал этого юнита
+	#передаём себя, чтобы MapManager игнорировал этого юнита
 	if map_manager:
 		map_manager.highlight_available_cells(current_cell, current_movement, self)
 
 func _update_visuals():
 	if is_selected:
-		modulate = Color(0.5, 1, 0.5, 1)  # Зелёный
+		modulate = Color(0.5, 1, 0.5, 1)
 		scale = original_scale * 1.2
 	else:
 		modulate = original_modulate
@@ -116,8 +108,6 @@ func deselect():
 	is_moving = false
 	movement_path.clear()
 	_update_visuals()
-	
-	# Очищаем подсветку при снятии выделения
 	if map_manager:
 		map_manager.clear_highlight()
 
