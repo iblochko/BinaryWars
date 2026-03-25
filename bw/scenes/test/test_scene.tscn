@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://nrjjmvsxhggj"]
+
+[ext_resource type="Script" uid="uid://bw2jrqi2exn6q" path="res://node.gd" id="1_wvq6k"]
+[ext_resource type="PackedScene" uid="uid://cag766de2f1ly" path="res://scenes/game/Map.tscn" id="2_4b6mq"]
+
+[node name="TestScene" type="Node2D" unique_id=525505056]
+
+[node name="Node" type="Node" parent="." unique_id=1660678530]
+script = ExtResource("1_wvq6k")
+
+[node name="map_manager" parent="Node" unique_id=704113698 instance=ExtResource("2_4b6mq")]
