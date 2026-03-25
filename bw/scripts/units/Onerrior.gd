@@ -1,19 +1,19 @@
 # Onerrior.gd
 extends "res://scripts/units/Unit.gd"  # ← Наследуемся от базового класса
 
-# === Уникальные характеристики ===
+#уникальные характеристики
 @export var health: int = 100
 @export var max_health: int = 100
 @export var attack: int = 10
 @export var defense: int = 5
-@export var attack_range: int = 1  # Клеток
+@export var attack_range: int = 1
 
-# === Инициализация ===
+#инициализация
 func _on_unit_ready():
 	print("⚔️ Воин создан! Здоровье: ", health, " Атака: ", attack)
-	# Здесь можно настроить уникальные визуальные эффекты
+	#добавить визуальные эффекты?
 
-# === Уникальные способности ===
+#уникальные способности
 func take_damage(amount: int):
 	var actual_damage = max(0, amount - defense)
 	health = max(0, health - actual_damage)
@@ -42,7 +42,6 @@ func die():
 		map_manager.unregister_unit(current_cell)
 	queue_free()
 
-# === Хук после движения ===
+#после движения
 func _on_movement_finished():
-	# Например, восстанавливать броню после хода
 	print(" Воин завершил движение")

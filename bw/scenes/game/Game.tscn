@@ -9,3 +9,6 @@
 
 [node name="Onerrior" parent="Map" unique_id=156615112 instance=ExtResource("2_m44fu")]
 position = Vector2(-1115, -600)
+
+[node name="Onerrior2" parent="Map" unique_id=961222461 instance=ExtResource("2_m44fu")]
+position = Vector2(-1118, -530)
