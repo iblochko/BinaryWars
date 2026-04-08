@@ -1,0 +1,48 @@
+name: CI — BinaryWars
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests (Godot Headless)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4 Linux headless
+        run: |
+          GODOT_VERSION="4.6"
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip" \
+            -O godot.zip
+          unzip -q godot.zip
+          mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
+          chmod +x godot
+
+      # Импорт ресурсов (Godot генерирует .godot/ кэш)
+      - name: Import project resources
+        run: ./godot --headless --path bw/ --quit --import 2>&1 | tail -3
+        continue-on-error: true
+
+      # Запуск node.gd — тесты вызываются в _ready() и завершают процесс через quit()
+      # Если есть "❌ FAIL" в выводе — билд падает
+      - name: Run unit tests
+        run: |
+          ./godot --headless --path bw/ -s node.gd 2>&1 | tee test_output.txt
+          if grep -q "❌ FAIL" test_output.txt; then
+            echo "Есть проваленные тесты!"
+            exit 1
+          fi
+          echo "Все тесты прошли"
+
+      - name: Upload test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: test_output.txt
