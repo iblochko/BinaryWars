@@ -44,6 +44,7 @@ func start_turn():
 			total_units += 1
 			# Восстанавливаем ходы
 			unit.reset_movement()
+			unit.reset_attacks()
 	
 	emit_signal("turn_started", current_turn, current_faction)
 	emit_signal("phase_changed", "player_action" if current_faction == Faction.PLAYER else "enemy_action")

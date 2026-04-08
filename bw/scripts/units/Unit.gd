@@ -5,7 +5,11 @@ class_name BaseUnit
 @export var movement_points: int = 2
 @export var move_speed: float = 300.0
 @export var max_health: int = 100
+@export var max_attack_amount: int = 2
 
+var current_attack_amount: int = 2
+var attack_range: int = 1  # Можно переопределить в дочерних классах
+var attack_damage: int = 10  # Можно переопределить в дочерних классах
 var current_health: int = 100
 var faction: int = 0
 var is_selected: bool = false
@@ -89,8 +93,57 @@ func select_unit():
 		printerr("❌ ActionPanel не найден в корневой сцене!")
 	
 	#передаём себя, чтобы MapManager игнорировал этого юнита
+	is_attack_mode = false  # ← Сбрасываем режим атаки при выделении
 	if map_manager:
 		map_manager.highlight_available_cells(current_cell, current_movement, self)
+
+func enable_attack_mode():
+	is_attack_mode = true
+	print("🎯 Режим атаки включён!")
+	
+	if map_manager:
+		map_manager.clear_highlight()
+		map_manager.highlight_attack_cells(current_cell, attack_range, self)
+
+func disable_attack_mode():
+	is_attack_mode = false
+	if map_manager:
+		map_manager.clear_highlight()
+
+func attack_target(target: BaseUnit):
+	if target == null:
+		return
+	
+	if target == self:
+		print("❌ Нельзя атаковать себя!")
+		return
+	
+	# Проверяем дистанцию
+	var distance = abs(current_cell.x - target.current_cell.x) + abs(current_cell.y - target.current_cell.y)
+	
+	if distance > attack_range:
+		print("❌ Цель слишком далеко! Дистанция: ", distance, " / ", attack_range)
+		return
+	
+	# Наносим урон
+	target.take_damage(attack_damage)
+	
+	print("⚔️ Атака! Нанесено ", attack_damage, " урона по ", target.name)
+	
+	# Выходим из режима атаки
+	disable_attack_mode()
+	deselect()
+
+# В deselect() добавь сброс режима атаки:
+func deselect():
+	is_selected = false
+	is_moving = false
+	is_attack_mode = false  # ← Сбрасываем режим атаки
+	movement_path.clear()
+	_update_visuals()
+	
+	if map_manager:
+		map_manager.clear_highlight()
 
 func _update_visuals():
 	if is_selected:
@@ -152,55 +205,20 @@ func move_along_path(path: Array[Vector2i]):
 	is_moving = true
 	print("🛤️ Путь из ", path.size(), " клеток")
 
-func deselect():
-	is_selected = false
-	is_moving = false
-	movement_path.clear()
-	_update_visuals()
-	if map_manager:
-		map_manager.clear_highlight()
-	var action_panel = get_tree().get_first_node_in_group("action_panel")
-	if action_panel:
-		action_panel.hide_panel()
-
-
-func enable_attack_mode():
-	is_attack_mode = true
-	print("🎯 Режим атаки включён! Выберите цель")
-	
-	# Подсветка врагов в радиусе
-	var map_manager = get_tree().get_first_node_in_group("map_manager")
-	if map_manager:
-		map_manager.highlight_attack_cells(current_cell, 1)
-
-func disable_attack_mode():
-	is_attack_mode = false
-	var map_manager = get_tree().get_first_node_in_group("map_manager")
-	if map_manager:
-		map_manager.clear_highlight()
-
-func attack_target(target: BaseUnit):
-	if target == null:
-		return
-	
-	var distance = abs(current_cell.x - target.current_cell.x) + abs(current_cell.y - target.current_cell.y)
-	
-	if distance <= 1:
-		target.take_damage(10)  # Урон
-		current_movement -= 1
-		print("⚔️ Атака! Нанесено 10 урона")
-		disable_attack_mode()
-		deselect()
-	else:
-		print("❌ Цель слишком далеко!")
 
 func reset_movement():
 	current_movement = movement_points
 	print("🔄 Ходы восстановлены: ", current_movement)
 
+func reset_attacks():
+	current_attack_amount=max_attack_amount
+	print("Атаки восстановлены: ", current_attack_amount)
+
 func take_damage(amount: int):
 	current_health = max(0, current_health - amount)
 	queue_redraw()  # ← Обновить полоску
+	await get_tree().process_frame
+	queue_redraw()
 	
 	var action_panel = get_tree().get_first_node_in_group("action_panel")
 	if action_panel and action_panel.current_unit == self:

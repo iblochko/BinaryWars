@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://qaafsjlyj1p" path="res://scripts/ui/ActionPanel.gd" id="1_xpfpg"]
 
 [node name="ActionPanel" type="CanvasLayer" unique_id=59756384]
+layer = 4
 follow_viewport_scale = 0.001
 script = ExtResource("1_xpfpg")
 

@@ -10,13 +10,6 @@ size = Vector2(64, 64)
 [node name="Onerrior" type="CharacterBody2D" unique_id=169862691]
 position = Vector2(34, 45)
 script = ExtResource("1_froux")
-health = null
-attack = null
-defense = null
-attack_range = null
-movement_points = null
-move_speed = null
-max_health = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=348075951]
 shape = SubResource("RectangleShape2D_rpwae")

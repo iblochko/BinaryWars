@@ -118,41 +118,109 @@ func validate_move(from_cell: Vector2i, to_cell: Vector2i, max_range: int) -> bo
 #ОБРАБОТКА КЛИКОВ
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
+		# ✅ Сначала проверяем UI
+		if _is_mouse_over_ui():
+			return  # ← Клик по UI, игнорируем!
+		
 		var mouse_pos = get_global_mouse_position()
 		var cell = get_cell_at_position(mouse_pos)
-		#ЛКМ = выбрать + подсветить
+		
+		print("Клик по клетке: ", cell)
+		
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if units_on_map.has(cell):
 				var unit = units_on_map[cell]
+				print("  На клетке есть юнит: ", unit.name)
 				unit.select_unit()
-				highlight_available_cells(unit.current_cell, unit.current_movement)
+				highlight_available_cells(unit.current_cell, unit.current_movement, unit)
 				emit_signal("unit_selected", unit)
 			else:
+				print("  Клетка пустая")
 				handle_cell_click(cell)
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			#ПКМ = отмена
-			clear_highlight()
-			var selected = get_selected_unit()
-			if selected:
-				selected.deselect()
+			# ✅ ПКМ — атака или отмена
+			handle_right_click(cell)
 
-func highlight_attack_cells(center_cell: Vector2i, attack_range: int):
+func handle_right_click(cell: Vector2i):
+	var selected_unit = get_selected_unit()
+	
+	if not selected_unit:
+		# Если юнит не выбран — просто отмена
+		clear_highlight()
+		print("❌ Нет выбранного юнита")
+		return
+	
+	# Проверяем, в режиме ли атаки юнит
+	if selected_unit.is_attack_mode:
+		# ✅ АТАКА!
+		if units_on_map.has(cell):
+			var target_unit = units_on_map[cell]
+			
+			# Не атакуем себя и союзников
+			if target_unit != selected_unit:
+				if selected_unit.current_attack_amount > 0:
+					selected_unit.attack_target(target_unit)
+					selected_unit.current_attack_amount -= 1
+					return
+				else:
+					print("Атаки кончились")
+			else:
+				print("❌ Нельзя атаковать себя!")
+		else:
+			print("❌ В клетке нет врага!")
+		
+		# Если атака не состоялась — выходим из режима
+		selected_unit.disable_attack_mode()
+		clear_highlight()
+	else:
+		# ✅ Обычное ПКМ — отмена выделения
+		clear_highlight()
+		selected_unit.deselect()
+		print("🚫 Выделение снято")
+
+# ✅ Проверка клика по UI
+func _is_mouse_over_ui() -> bool:
+	# ✅ Используем экранные координаты!
+	var mouse_pos = get_viewport().get_mouse_position()
+	
+	# ActionPanel
+	var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
+	if action_panel and action_panel.visible:
+		var panel = action_panel.get_node_or_null("PanelContainer")
+		if panel:
+			# ✅ get_global_rect() для CanvasLayer детей
+			var panel_rect = panel.get_global_rect()
+			print("🔍 Panel rect: ", panel_rect, " | Mouse: ", mouse_pos)
+			if panel_rect.has_point(mouse_pos):
+				return true
+	
+	# TurnUI
+	var turn_ui = get_tree().current_scene.get_node_or_null("TurnUI")
+	if turn_ui and turn_ui.visible:
+		var panel = turn_ui.get_node_or_null("Panel")
+		if panel:
+			var ui_rect = panel.get_global_rect()
+			if ui_rect.has_point(mouse_pos):
+				return true
+	
+	return false
+
+func highlight_attack_cells(center_cell: Vector2i, attack_range: int, attacker: BaseUnit):
 	clear_highlight()
 	
 	var cells = get_cells_in_range(center_cell, attack_range)
 	
 	for cell in cells:
-		# Подсвечиваем только клетки с врагами
 		if units_on_map.has(cell):
 			var unit = units_on_map[cell]
-			# Не подсвечиваем себя и союзников
-			if unit.faction != 0:  # Если враг (faction 1+)
+			
+			if unit != attacker:
 				tile_map.set_cell(1, cell, 0, Vector2i(0, 0))
 				highlighted_cells.append(cell)
 	
 	# Красный оттенок для атаки
-	tile_map.set_layer_modulate(1, Color(1, 0.5, 0.5, 0.5))
+	tile_map.set_layer_modulate(1, Color(1, 0.3, 0.3, 0.5))
 
 func handle_cell_click(cell: Vector2i):
 	var selected_unit = get_selected_unit()

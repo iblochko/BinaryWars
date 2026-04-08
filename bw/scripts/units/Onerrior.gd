@@ -5,23 +5,14 @@ extends "res://scripts/units/Unit.gd"  # ← Наследуемся от баз�
 @export var health: int = 100
 @export var attack: int = 10
 @export var defense: int = 5
-@export var attack_range: int = 1
 
 #инициализация
 func _on_unit_ready():
+	attack_range = 1
 	movement_points = 4
 	max_health = 100
 	print("⚔️ Воин создан! Здоровье: ", health, " Атака: ", attack)
 	#добавить визуальные эффекты?
-
-#уникальные способности
-func take_damage(amount: int):
-	var actual_damage = max(0, amount - defense)
-	health = max(0, health - actual_damage)
-	print("🛡️ Воин получил ", actual_damage, " урона. Осталось: ", health)
-	
-	if health <= 0:
-		die()
 
 func attack_target(target_unit: BaseUnit):
 	if target_unit == null:

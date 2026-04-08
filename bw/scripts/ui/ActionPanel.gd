@@ -59,17 +59,19 @@ func _update_buttons():
 	wait_button.disabled = false
 
 func _on_attack_pressed():
-	if current_unit == null:  # ✅ ПРОВЕРКА!
-		printerr("❌ current_unit = null в _on_attack_pressed()!")
+	if current_unit == null:
 		return
 	
-	print("⚔️ Атака выбрана!")
+	print("⚔️ Режим атаки включён!")
 	
+	# Включаем режим атаки у юнита
+	current_unit.enable_attack_mode()
+	
+	# Отключаем ввод MapManager пока панель закрыта
 	var map_manager = get_tree().get_first_node_in_group("map_manager")
 	if map_manager:
-		map_manager.highlight_attack_cells(current_unit.current_cell, 1)
+		map_manager.set_process_input(true)  # Включаем, чтобы можно было кликать по карте
 	
-	hide_panel()
 
 func _on_defend_pressed():
 	if current_unit == null:
@@ -78,7 +80,6 @@ func _on_defend_pressed():
 	print("🛡️ Защитная стойка!")
 	current_unit.current_movement = 0
 	current_unit.deselect()
-	hide_panel()
 
 func _on_wait_pressed():
 	if current_unit == null:
@@ -87,7 +88,6 @@ func _on_wait_pressed():
 	print("⏳ Пропуск хода")
 	current_unit.current_movement = 0
 	current_unit.deselect()
-	hide_panel()
 
 func _on_close_pressed():
 	hide_panel()
