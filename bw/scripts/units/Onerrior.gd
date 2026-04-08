@@ -3,13 +3,14 @@ extends "res://scripts/units/Unit.gd"  # ← Наследуемся от баз�
 
 #уникальные характеристики
 @export var health: int = 100
-@export var max_health: int = 100
 @export var attack: int = 10
 @export var defense: int = 5
 @export var attack_range: int = 1
 
 #инициализация
 func _on_unit_ready():
+	movement_points = 4
+	max_health = 100
 	print("⚔️ Воин создан! Здоровье: ", health, " Атака: ", attack)
 	#добавить визуальные эффекты?
 

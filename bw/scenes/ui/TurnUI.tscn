@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://dous1v2aji7b7"]
+
+[ext_resource type="Script" uid="uid://b2t6yqcs12rs4" path="res://scripts/managers/TurnUI.gd" id="1_uioac"]
+[ext_resource type="Texture2D" uid="uid://d4cpodmfwp6vw" path="res://assets/sprites/ui/next_turn.png" id="2_abvkg"]
+
+[node name="TurnUI" type="CanvasLayer" unique_id=876065878]
+script = ExtResource("1_uioac")
+
+[node name="Panel" type="Panel" parent="." unique_id=374285260]
+offset_right = 113.0
+offset_bottom = 72.0
+
+[node name="TurnLabel" type="Label" parent="Panel" unique_id=245638625]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 30.0
+offset_right = 41.0
+offset_bottom = 53.0
+
+[node name="FactionLabel" type="Label" parent="Panel" unique_id=660767300]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 41.0
+offset_bottom = 24.0
+
+[node name="EndTurnButton" type="Button" parent="Panel" unique_id=621493043]
+layout_mode = 0
+offset_left = 112.0
+offset_right = 184.0
+offset_bottom = 72.0
+icon = ExtResource("2_abvkg")

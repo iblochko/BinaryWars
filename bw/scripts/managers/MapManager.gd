@@ -137,11 +137,37 @@ func _input(event):
 			if selected:
 				selected.deselect()
 
+func highlight_attack_cells(center_cell: Vector2i, attack_range: int):
+	clear_highlight()
+	
+	var cells = get_cells_in_range(center_cell, attack_range)
+	
+	for cell in cells:
+		# Подсвечиваем только клетки с врагами
+		if units_on_map.has(cell):
+			var unit = units_on_map[cell]
+			# Не подсвечиваем себя и союзников
+			if unit.faction != 0:  # Если враг (faction 1+)
+				tile_map.set_cell(1, cell, 0, Vector2i(0, 0))
+				highlighted_cells.append(cell)
+	
+	# Красный оттенок для атаки
+	tile_map.set_layer_modulate(1, Color(1, 0.5, 0.5, 0.5))
+
 func handle_cell_click(cell: Vector2i):
 	var selected_unit = get_selected_unit()
 	if not selected_unit:
 		return
 	
+	 # Проверяем, чей сейчас ход
+	var turn_manager = get_tree().get_first_node_in_group("turn_manager")
+	if turn_manager:
+		if turn_manager.current_faction != turn_manager.Faction.PLAYER:
+			print("⚠️ Сейчас не ваш ход!")
+			return
+		if not turn_manager.is_turn_active:
+			print("⚠️ Ход завершён!")
+			return
 	clear_highlight()
 	
 	if validate_move(selected_unit.current_cell, cell, selected_unit.current_movement):
@@ -149,6 +175,7 @@ func handle_cell_click(cell: Vector2i):
 		selected_unit.move_along_path(path)
 	else:
 		print("❌ Нельзя переместиться")
+		highlight_available_cells(selected_unit.current_cell, selected_unit.current_movement, selected_unit)
 
 func load_map_data():
 	if tile_map == null:

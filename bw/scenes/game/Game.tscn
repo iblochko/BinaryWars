@@ -2,13 +2,26 @@
 
 [ext_resource type="PackedScene" uid="uid://cag766de2f1ly" path="res://scenes/game/Map.tscn" id="1_klkup"]
 [ext_resource type="PackedScene" uid="uid://dntm7gvnrjt1q" path="res://scenes/units/Onerrior.tscn" id="2_m44fu"]
+[ext_resource type="Script" uid="uid://cxnovenroox1q" path="res://scripts/managers/TurnManager.gd" id="3_7qcb4"]
+[ext_resource type="PackedScene" uid="uid://dous1v2aji7b7" path="res://scenes/ui/TurnUI.tscn" id="4_7qcb4"]
+[ext_resource type="PackedScene" uid="uid://d304ca4mjiicp" path="res://scenes/ui/ActionPanel.tscn" id="5_lyhax"]
 
 [node name="Game" type="Node2D" unique_id=872508359]
 
 [node name="Map" parent="." unique_id=704113698 instance=ExtResource("1_klkup")]
 
-[node name="Onerrior" parent="Map" unique_id=156615112 instance=ExtResource("2_m44fu")]
-position = Vector2(-1115, -600)
+[node name="Units" type="Node2D" parent="." unique_id=202485634]
 
-[node name="Onerrior2" parent="Map" unique_id=961222461 instance=ExtResource("2_m44fu")]
+[node name="Onerrior" parent="Units" unique_id=156615112 instance=ExtResource("2_m44fu")]
+position = Vector2(-1118, -600)
+
+[node name="Onerrior2" parent="Units" unique_id=961222461 instance=ExtResource("2_m44fu")]
 position = Vector2(-1118, -530)
+
+[node name="TurnManager" type="Node" parent="." unique_id=1097150598]
+script = ExtResource("3_7qcb4")
+
+[node name="TurnUI" parent="." unique_id=1563342287 instance=ExtResource("4_7qcb4")]
+
+[node name="ActionPanel" parent="." unique_id=1637086703 instance=ExtResource("5_lyhax")]
+layer = 3
