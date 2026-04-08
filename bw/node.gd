@@ -1,4 +1,3 @@
-
 extends Node
 
 
@@ -65,6 +64,9 @@ func test_map_manager_logic():
 		
 		path = map_mgr.find_path(Vector2i(0,0), Vector2i(1,1), 5, true)
 		assert_equal(path.size(), 3, "Путь на клетку по диагонали (размер 3)")
+		
+		path = map_mgr.find_path(Vector2i(0,0), Vector2i(1,1), 5, true)
+		assert_equal(path.size(), 10, "Путь на клетку по диагонали (размер 10)")
 	else:
 		print("⚠️ MapManager не найден в сцене, тест пропущен")
 		tests_passed += 1

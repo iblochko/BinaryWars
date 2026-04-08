@@ -1,30 +1,25 @@
 [gd_scene format=3 uid="uid://dntm7gvnrjt1q"]
 
-[ext_resource type="Script" uid="uid://d0sgi1d8q3pe8" path="res://scripts/units/Unit.gd" id="1_rpwae"]
+[ext_resource type="Script" uid="uid://bnxoh3ybobjkf" path="res://scripts/units/Onerrior.gd" id="1_froux"]
 [ext_resource type="Texture2D" uid="uid://dwyn7v3qjwq8s" path="res://assets/sprites/units/pixel1.png" id="1_tm5vm"]
 [ext_resource type="Texture2D" uid="uid://h3lq8wytqtuu" path="res://assets/sprites/units/items/noob_sword.png" id="3_nwwhx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rpwae"]
 size = Vector2(64, 64)
 
-[node name="Onerrior" type="Node2D" unique_id=156615112]
-position = Vector2(542, 270)
+[node name="Onerrior" type="CharacterBody2D" unique_id=169862691]
+position = Vector2(34, 45)
+script = ExtResource("1_froux")
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=248226540]
-position = Vector2(2, -2)
-script = ExtResource("1_rpwae")
-
-[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D" unique_id=1595035825]
-position = Vector2(-37, -37)
-scale = Vector2(1.026125, 1)
-texture = ExtResource("1_tm5vm")
-centered = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=348075951]
-position = Vector2(-3, -1)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=348075951]
 shape = SubResource("RectangleShape2D_rpwae")
 
-[node name="Item" type="Sprite2D" parent="CharacterBody2D" unique_id=620939495]
-position = Vector2(-20, -2)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1595035825]
+position = Vector2(1, 1)
+scale = Vector2(1.026125, 1)
+texture = ExtResource("1_tm5vm")
+
+[node name="Item" type="Sprite2D" parent="." unique_id=620939495]
+position = Vector2(-15, 14)
 scale = Vector2(2.375, 2.375)
 texture = ExtResource("3_nwwhx")

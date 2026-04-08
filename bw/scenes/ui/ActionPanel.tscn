@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://d304ca4mjiicp"]
+
+[ext_resource type="Script" uid="uid://qaafsjlyj1p" path="res://scripts/ui/ActionPanel.gd" id="1_xpfpg"]
+
+[node name="ActionPanel" type="CanvasLayer" unique_id=59756384]
+layer = 4
+follow_viewport_scale = 0.001
+script = ExtResource("1_xpfpg")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1236665269]
+offset_left = 887.0
+offset_top = 428.0
+offset_right = 1146.0
+offset_bottom = 644.0
+
+[node name="UnitInfo" type="VBoxContainer" parent="PanelContainer" unique_id=1124770135]
+layout_mode = 2
+
+[node name="UnitName" type="Label" parent="PanelContainer/UnitInfo" unique_id=1804951455]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+
+[node name="HealthLabel" type="Label" parent="PanelContainer/UnitInfo" unique_id=1502105971]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="MovementLabel" type="Label" parent="PanelContainer/UnitInfo" unique_id=63967530]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer" unique_id=984326403]
+layout_mode = 2
+
+[node name="ActionButtons" type="VBoxContainer" parent="PanelContainer" unique_id=205976186]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="AttackButton" type="Button" parent="PanelContainer/ActionButtons" unique_id=1092696501]
+custom_minimum_size = Vector2(180, 25)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+size_flags_stretch_ratio = 0.0
+text = "⚔️ Attack"
+
+[node name="DefendButton" type="Button" parent="PanelContainer/ActionButtons" unique_id=247117002]
+custom_minimum_size = Vector2(180, 25)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+size_flags_stretch_ratio = 0.0
+text = "🛡️ Defend"
+
+[node name="ActionButton" type="Button" parent="PanelContainer/ActionButtons" unique_id=699852717]
+custom_minimum_size = Vector2(180, 30)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+size_flags_stretch_ratio = 0.0
+text = "🔥 Action"
+
+[node name="CloseButton" type="Button" parent="PanelContainer" unique_id=580241794]
+custom_minimum_size = Vector2(30, 110)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+size_flags_stretch_ratio = 0.0
+text = "🚫 Close"
