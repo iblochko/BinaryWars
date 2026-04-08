@@ -160,5 +160,6 @@ godot --headless --path bw/ -s node.gd
 
 ## Команда
 
-- [@iblochko](https://github.com/iblochko)
-- [@homutov](https://github.com/homutov)
+- Хомутов Максим
+- Тарашкевич Даниил
+- Тимофеюк Владислав
