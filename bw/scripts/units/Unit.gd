@@ -188,6 +188,10 @@ func _on_path_completed():
 	if turn_manager:
 		turn_manager.units_moved += 1
 	
+	var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
+	if action_panel and action_panel.current_unit == self:
+		action_panel.update_health()  # Обновляет HP и ходы
+	
 	print("✅ Прибыл на: ", current_cell, " | Ходов осталось: ", current_movement)
 	
 	if current_movement <= 0:

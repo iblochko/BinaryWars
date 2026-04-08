@@ -47,7 +47,7 @@ func _update_unit_info():
 		return
 	
 	unit_name.text = "⚔️ " + current_unit.name
-	health_label.text = "❤️ HP: " + str(current_unit.current_health) + "/" + str(current_unit.max_health)
+	health_label.text = "❤️ HP: " + str(current_unit.current_health) + "/" + str(current_unit.max_health) + " ⚔️ Атаки: " + str(current_unit.current_attack_amount) + "/" + str(current_unit.max_attack_amount)
 	movement_label.text = "🚶 Ходы: " + str(current_unit.current_movement) + "/" + str(current_unit.movement_points)
 
 func _update_buttons():

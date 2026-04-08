@@ -83,8 +83,8 @@ func _next_turn():
 		# Если есть вражеский ход
 		if allow_enemy_turn:
 			start_turn()
-			# Здесь можно добавить AI для врага
-			await _enemy_ai_turn()
+			# Здесь для врага
+			await _enemy_turn()
 		else:
 			# Сразу обратно к игроку
 			current_turn += 1
@@ -96,7 +96,7 @@ func _next_turn():
 		start_turn()
 
 # === ПРОСТОЙ AI ВРАГА (заглушка) ===
-func _enemy_ai_turn():
+func _enemy_turn():
 	print("🤖 Ход врага...")
 	
 	# TODO: Добавить логику вражеских юнитов
