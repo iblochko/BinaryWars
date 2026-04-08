@@ -162,6 +162,9 @@ func handle_right_click(cell: Vector2i):
 				if selected_unit.current_attack_amount > 0:
 					selected_unit.attack_target(target_unit)
 					selected_unit.current_attack_amount -= 1
+					var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
+					if action_panel:
+						action_panel.update_health()  # Обновляет HP и ходы
 					return
 				else:
 					print("Атаки кончились")
