@@ -4,6 +4,9 @@
 
 Пошаговая стратегия на движке [Godot 4](https://godotengine.org/), разрабатываемая в рамках учебного курса.
 
+
+<img width="1153" height="647" alt="image" src="https://github.com/user-attachments/assets/907a544f-ee5f-4e8d-b90a-cd8e97516a4c" />
+
 ---
 
 ## Описание игры
