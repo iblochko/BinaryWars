@@ -23,6 +23,15 @@ func _ready():
 	# Кнопка
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
 
+func _input(event):
+	
+	if event is InputEventKey and event.pressed:
+		var key_name = OS.get_keycode_string(event.keycode).to_lower()
+		
+		if key_name == "t":
+			_on_end_turn_pressed()
+			get_viewport().set_input_as_handled()
+
 func _update_ui():
 	if not turn_manager:
 		return

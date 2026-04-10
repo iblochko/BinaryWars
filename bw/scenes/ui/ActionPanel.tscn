@@ -42,7 +42,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 size_flags_stretch_ratio = 0.0
-text = "⚔️ Attack"
+text = "⚔️ Attack [A]"
 
 [node name="DefendButton" type="Button" parent="PanelContainer/ActionButtons" unique_id=247117002]
 custom_minimum_size = Vector2(180, 25)
@@ -50,7 +50,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 size_flags_stretch_ratio = 0.0
-text = "🛡️ Defend"
+text = "🛡️ Defend [D]"
 
 [node name="ActionButton" type="Button" parent="PanelContainer/ActionButtons" unique_id=699852717]
 custom_minimum_size = Vector2(180, 30)
@@ -58,7 +58,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 size_flags_stretch_ratio = 0.0
-text = "🔥 Action"
+text = "🔥 Action [Space]"
 
 [node name="CloseButton" type="Button" parent="PanelContainer" unique_id=580241794]
 custom_minimum_size = Vector2(30, 110)
@@ -66,4 +66,5 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 size_flags_stretch_ratio = 0.0
-text = "🚫 Close"
+text = "🚫 Close
+[Esc]"

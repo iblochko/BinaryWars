@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dmi2wpvpaqp4p"]
+
+[ext_resource type="Script" uid="uid://db8s4du84qgyw" path="res://scripts/buildings/Barracks.gd" id="1_0rfcj"]
+[ext_resource type="Texture2D" uid="uid://ump8e5sjujqb" path="res://assets/sprites/buildings/barracks-removebg-preview.png" id="2_agf3t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8m6ji"]
+size = Vector2(430, 403.5)
+
+[node name="Barracks" type="StaticBody2D" unique_id=1296725902]
+script = ExtResource("1_0rfcj")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=350837248]
+position = Vector2(525, 296)
+scale = Vector2(1.4199219, 1.2782341)
+texture = ExtResource("2_agf3t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1271137943]
+position = Vector2(524, 296.25)
+shape = SubResource("RectangleShape2D_8m6ji")

@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bjxr2br0svqrd"]
+
+[ext_resource type="Script" uid="uid://bnxoh3ybobjkf" path="res://scripts/units/Onerrior.gd" id="1_ja4ww"]
+[ext_resource type="Texture2D" uid="uid://b7o1l5gstfjvh" path="res://assets/sprites/units/zerrior-removebg-preview.png" id="2_rbgwx"]
+[ext_resource type="Texture2D" uid="uid://h3lq8wytqtuu" path="res://assets/sprites/units/items/noob_sword.png" id="3_ytdq8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xlx85"]
+size = Vector2(56.5, 63.5)
+
+[node name="Zerrior" type="CharacterBody2D" unique_id=1391086507]
+position = Vector2(61, 54)
+script = ExtResource("1_ja4ww")
+metadata/_custom_type_script = "uid://d0sgi1d8q3pe8"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=237250993]
+position = Vector2(-0.9999924, 3.5000017)
+scale = Vector2(0.13524592, 0.12695313)
+texture = ExtResource("2_rbgwx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1262741786]
+position = Vector2(2, 3.75)
+shape = SubResource("RectangleShape2D_xlx85")
+
+[node name="Item" type="Sprite2D" parent="." unique_id=805582227]
+position = Vector2(-13.999998, 9)
+scale = Vector2(2.3124998, 2.5625)
+texture = ExtResource("3_ytdq8")
