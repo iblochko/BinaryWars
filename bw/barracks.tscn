@@ -4,16 +4,17 @@
 [ext_resource type="Texture2D" uid="uid://ump8e5sjujqb" path="res://assets/sprites/buildings/barracks-removebg-preview.png" id="2_agf3t"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8m6ji"]
-size = Vector2(430, 403.5)
+size = Vector2(183.0625, 181.25)
 
 [node name="Barracks" type="StaticBody2D" unique_id=1296725902]
+position = Vector2(323, 227)
 script = ExtResource("1_0rfcj")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=350837248]
-position = Vector2(525, 296)
-scale = Vector2(1.4199219, 1.2782341)
+position = Vector2(-2.9999914, 0.71875)
+scale = Vector2(0.62890625, 0.59253085)
 texture = ExtResource("2_agf3t")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1271137943]
-position = Vector2(524, 296.25)
+position = Vector2(-9.53125, 2)
 shape = SubResource("RectangleShape2D_8m6ji")

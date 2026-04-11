@@ -6,12 +6,12 @@ class_name BaseUnit
 @export var move_speed: float = 300.0
 @export var max_health: int = 100
 @export var max_attack_amount: int = 2
+@export var faction: int = 1
 
 var current_attack_amount: int = 2
 var attack_range: int = 1  # Можно переопределить в дочерних классах
 var attack_damage: int = 10  # Можно переопределить в дочерних классах
 var current_health: int = 100
-var faction: int = 0
 var is_selected: bool = false
 var is_moving: bool = false
 var current_movement: int = 2

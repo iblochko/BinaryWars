@@ -34,19 +34,36 @@ func _ready():
 	current_cell = map_manager.get_cell_at_position(global_position)
 	global_position = map_manager.get_cell_world_position(current_cell)
 	
+	# ✅ РЕГИСТРАЦИЯ ЗДАНИЯ (не юнита!)
+	map_manager.register_building(self, current_cell)
+	
 	current_health = max_health
 	
 	print("🏗️ Здание создано: ", name, " | HP: ", current_health)
+	print("🔍 Клетка здания: ", current_cell)
 	
 	_on_building_ready()
 
 func select_building():
+	# ✅ ДОБАВЬ ЭТО В НАЧАЛО:
+	# Снимаем выделение со всех юнитов
+	var all_units = get_tree().get_nodes_in_group("units")
+	for unit in all_units:
+		if unit.is_selected:
+			unit.deselect()
+	
+	# Снимаем выделение с других зданий
+	var all_buildings = get_tree().get_nodes_in_group("buildings")
+	for b in all_buildings:
+		if b != self and b.is_selected:
+			b.deselect_building()
+	# ✅ КОНЕЦ ДОБАВЛЕННОГО
+	
 	is_selected = true
 	show_health_bar = true
 	queue_redraw()
 	_update_visuals()
 	
-	# Показываем панель действий
 	var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
 	if action_panel:
 		action_panel.show_panel_for_building(self)

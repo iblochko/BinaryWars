@@ -6,13 +6,13 @@ extends CanvasLayer
 @onready var movement_label = $PanelContainer/UnitInfo/MovementLabel
 @onready var attack_button = $PanelContainer/ActionButtons/AttackButton
 @onready var defend_button = $PanelContainer/ActionButtons/DefendButton
-@onready var wait_button = $PanelContainer/ActionButtons/ActionButton  # ⚠️ Проверь имя!
+@onready var action_button = $PanelContainer/ActionButtons/ActionButton
 @onready var close_button = $PanelContainer/CloseButton
 
 # === ХОТКЕИ ===
 @export var hotkey_attack: String = "a"      
 @export var hotkey_defend: String = "d"
-@export var hotkey_wait: String = "space"     # Space — Пропуск
+@export var hotkey_action: String = "space"     # Space — Пропуск
 @export var hotkey_close: String = "escape"   # Escape — Закрыть
 
 var current_unit: BaseUnit = null
@@ -24,7 +24,7 @@ func _ready():
 	
 	attack_button.pressed.connect(_on_attack_pressed)
 	defend_button.pressed.connect(_on_defend_pressed)
-	wait_button.pressed.connect(_on_wait_pressed)
+	action_button.pressed.connect(_on_action_pressed)
 	close_button.pressed.connect(_on_close_pressed)
 	
 	print("✅ ActionPanel готов!")
@@ -47,8 +47,8 @@ func _input(event):
 			get_viewport().set_input_as_handled()
 		
 		# Пропуск (Space)
-		elif key_name == hotkey_wait:
-			_on_wait_pressed()
+		elif key_name == hotkey_action:
+			_on_action_pressed()
 			get_viewport().set_input_as_handled()
 		
 		# Закрыть (Escape)
@@ -60,6 +60,8 @@ func show_panel(unit: BaseUnit):
 	if unit == null:
 		printerr("❌ Юнит не передан в show_panel()!")
 		return
+	
+	current_building = null  # ← Сбрасываем здание!
 	
 	current_unit = unit
 	is_visible_panel = true
@@ -90,7 +92,12 @@ func _update_buttons():
 	
 	attack_button.disabled = false
 	defend_button.disabled = false
-	wait_button.disabled = false
+	action_button.disabled = false
+
+	attack_button.visible = true
+	defend_button.visible = true
+	action_button.visible = true
+	attack_button.text = "⚔️ Attack [A]"  # ← Сбрасываем текст кнопки
 
 func _on_defend_pressed():
 	if current_unit == null:
@@ -101,7 +108,7 @@ func _on_defend_pressed():
 	current_unit.deselect()
 	hide_panel()  # ← Закрыть панель
 
-func _on_wait_pressed():
+func _on_action_pressed():
 	if current_unit == null:
 		return
 	
@@ -141,7 +148,7 @@ func _update_building_buttons():
 	attack_button.text = "⚔️ Произвести"
 	attack_button.visible = current_building is BaseBarracks
 	defend_button.visible = false
-	wait_button.visible = false
+	action_button.visible = false
 
 func _on_attack_pressed():
 	if current_building:
@@ -162,3 +169,5 @@ func _on_attack_pressed():
 func update_health():
 	if current_unit:
 		_update_unit_info()
+	elif current_building:
+		_update_building_info()

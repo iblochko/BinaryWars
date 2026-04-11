@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bjxr2br0svqrd" path="res://scenes/units/Zerrior.tscn" id="3_365ku"]
 [ext_resource type="PackedScene" uid="uid://dous1v2aji7b7" path="res://scenes/ui/TurnUI.tscn" id="4_7qcb4"]
 [ext_resource type="PackedScene" uid="uid://d304ca4mjiicp" path="res://scenes/ui/ActionPanel.tscn" id="5_lyhax"]
+[ext_resource type="PackedScene" uid="uid://dmi2wpvpaqp4p" path="res://barracks.tscn" id="7_gg4pt"]
 
 [node name="Game" type="Node2D" unique_id=872508359]
 position = Vector2(-1, -1)
@@ -34,3 +35,8 @@ hotkey_attack = null
 hotkey_defend = null
 hotkey_wait = null
 hotkey_close = null
+
+[node name="Buildings" type="Node2D" parent="." unique_id=1941771694]
+
+[node name="Barracks" parent="Buildings" unique_id=1296725902 instance=ExtResource("7_gg4pt")]
+position = Vector2(-594, -400)
