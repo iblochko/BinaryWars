@@ -144,7 +144,7 @@ func _update_building_buttons():
 		return
 	
 	# Показываем кнопки для зданий
-	attack_button.text = "⚔️ Произвести"
+	attack_button.text = "[A]⚔️ Произвести"
 	attack_button.visible = current_building is BaseBarracks
 	defend_button.visible = false
 	action_button.visible = false

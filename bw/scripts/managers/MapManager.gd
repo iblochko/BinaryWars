@@ -18,6 +18,8 @@ func _ready():
 	load_map_data()
 	print("✅ MapManager готов!")
 
+# === ЗАГРУЗКА ЗДАНИЙ ИЗ TILEMAP ===
+
 # === ЗАГРУЗКА КАРТЫ ===
 func load_map_data():
 	if tile_map == null:
@@ -56,56 +58,32 @@ func load_map_data():
 	
 	print("🗺️ Загружено клеток: ", grid.size())
 	
-	# === 2. ЗАГРУЗКА ЗДАНИЙ (слой 2) ✅ ===
-	_load_buildings_from_tilemap()
+	# === 2. ✅ РЕГИСТРАЦИЯ ЗДАНИЙ ИЗ СЦЕНЫ (не из TileMap!) ===
+	_register_existing_buildings()
 
-# === ЗАГРУЗКА ЗДАНИЙ ИЗ TILEMAP ===
-func _load_buildings_from_tilemap():
-	var building_cells = tile_map.get_used_cells(2)
+# === ✅ НОВАЯ ФУНКЦИЯ: Регистрация зданий из сцены ===
+func _register_existing_buildings():
+	print("🔍 Ищу здания в узле Buildings...")
 	
-	if building_cells.size() == 0:
-		print("🏗️ Здания на карте не найдены")
+	var buildings_node = get_tree().current_scene.get_node_or_null("Buildings")
+	if buildings_node == null:
+		print("⚠️ Узел Buildings не найден!")
 		return
 	
-	print("🏗️ Найдено зданий: ", building_cells.size())
+	var count = 0
+	for building in buildings_node.get_children():
+		if building is BaseBuilding:
+			var cell = get_cell_at_position(building.global_position)
+			register_building(building, cell)
+			print("✅ Здание зарегистрировано: ", building.name, " | Фракция: ", building.faction, " | Клетка: ", cell)
+			count += 1
 	
-	# ✅ Отслеживаем уже созданные здания (для многоклеточных)
-	var created_buildings: Array = []
-	
-	for cell in building_cells:
-		var tile_id = tile_map.get_cell_source_id(2, cell)
-		var building_scene_path = ""
-		
-		match tile_id:
-			0:
-				building_scene_path = "res://scenes/buildings/Barracks.tscn"
-			1:
-				building_scene_path = "res://scenes/buildings/Tower.tscn"
-			2:
-				building_scene_path = "res://scenes/buildings/Factory.tscn"
-			_:
-				print("⚠️ Неизвестный тип здания: ", tile_id, " на клетке ", cell)
-				continue
-		
-		if building_scene_path != "":
-			var building_scene = load(building_scene_path)
-			if building_scene:
-				var building = building_scene.instantiate()
-				building.global_position = get_cell_world_position(cell)
-				
-				var game_scene = get_tree().current_scene
-				if game_scene:
-					var buildings_node = game_scene.get_node_or_null("Buildings")
-					if buildings_node == null:
-						buildings_node = Node2D.new()
-						buildings_node.name = "Buildings"
-						game_scene.add_child(buildings_node)
-					
-					buildings_node.add_child(building)
-					
-					# ✅ Регистрируем с occupied_cells (которые вычислятся в _ready())
-					# Но пока они не вычислены, поэтому регистрируем позже
-					print("✅ Здание создано: ", building.name, " на клетке ", cell)
+	print("🏗️ Всего зданий зарегистрировано: ", count)
+
+# === ❌ УДАЛИ ИЛИ ЗАКОММЕНТИРУЙ ЭТУ ФУНКЦИЮ ===
+# func _load_buildings_from_tilemap():
+#     ... (старый код)
+
 # === РЕГИСТРАЦИЯ ЗДАНИЙ ===
 func register_building(building, cell: Vector2i, occupied_cells: Array[Vector2i] = []):
 	# ✅ Регистрируем ВСЕ клетки здания
@@ -282,7 +260,7 @@ func highlight_attack_cells(center_cell: Vector2i, attack_range: int, attacker: 
 		elif buildings_on_map.has(cell):
 			var building = buildings_on_map[cell]
 			if not highlighted_buildings.has(building):
-				# Подсвечиваем все клетки здания
+				# Подсвечиваем ВСЕ клетки здания
 				for occ_cell in building.occupied_cells:
 					tile_map.set_cell(1, occ_cell, 0, Vector2i(0, 0))
 					highlighted_cells.append(occ_cell)
@@ -323,7 +301,10 @@ func _input(event):
 			if units_on_map.has(cell):
 				var unit = units_on_map[cell]
 				print("  На клетке есть юнит: ", unit.name)
-		
+				for b_cell in buildings_on_map:
+					var b = buildings_on_map[b_cell]
+					if b.is_selected:
+						b.deselect_building()
 		# ✅ ПРОВЕРКА ФРАКЦИИ — нельзя выделять чужих юнитов!
 				var turn_manager = get_tree().get_first_node_in_group("turn_manager")
 				if turn_manager:
@@ -342,8 +323,22 @@ func _input(event):
 		
 			elif buildings_on_map.has(cell):
 		# ✅ Для зданий тоже можно добавить проверку фракции (опционально)
+				for b_cell in buildings_on_map:
+					var b = buildings_on_map[b_cell]
+					if b.is_selected:
+						b.deselect_building()
 				var building = buildings_on_map[cell]
 				print("  На клетке есть здание: ", building.name)
+				var turn_manager = get_tree().get_first_node_in_group("turn_manager")
+				if turn_manager:
+					if turn_manager.current_faction == turn_manager.Faction.PLAYER_0:
+						if building.faction != 0:
+							print("⚠️ Нельзя выбрать чужое здание (Player 0)!")
+							return
+					elif turn_manager.current_faction == turn_manager.Faction.PLAYER_1:
+						if building.faction != 1:
+							print("⚠️ Нельзя выбрать чужое здание (Player 1)!")
+							return
 				building.select_building()
 			else:
 				print("  Клетка пустая")
@@ -357,6 +352,10 @@ func handle_right_click(cell: Vector2i):
 	
 	if not selected_unit:
 		clear_highlight()
+		for b_cell in buildings_on_map:
+			var b = buildings_on_map[b_cell]
+			if b.is_selected:
+				b.deselect_building()
 		print("❌ Нет выбранного юнита")
 		return
 	
@@ -402,7 +401,6 @@ func handle_right_click(cell: Vector2i):
 		selected_unit.disable_attack_mode()
 		clear_highlight()
 	else:
-		clear_highlight()
 		selected_unit.deselect()
 		print("🚫 Выделение снято")
 func _is_mouse_over_ui() -> bool:

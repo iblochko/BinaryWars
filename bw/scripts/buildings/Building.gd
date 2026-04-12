@@ -6,15 +6,21 @@ class_name BaseBuilding
 @export var build_cost: int = 100
 @export var build_time: float = 3.0
 
-# === ✅ НОВОЕ: Размер здания ===
-@export var building_size: Vector2i = Vector2i(1, 1)
-var occupied_cells: Array[Vector2i] = []  # ← Все клетки здания
+# === ✅ ФРАКЦИЯ ЗДАНИЯ ===
+@export var faction: int = 0
+
+# === ✅ РАЗМЕР ЗДАНИЯ ===
+@export var building_size: Vector2i = Vector2i(3, 3)  # ← 3×3 для Barracks!
+
+# === ✅ ТЕКСТУРЫ ДЛЯ ФРАКЦИЙ ===
+@export var texture_faction_0: Texture2D
+@export var texture_faction_1: Texture2D
 
 # === Состояние ===
 var current_health: int = 200
-var faction: int = 0
 var is_selected: bool = false
 var current_cell: Vector2i = Vector2i.ZERO
+var occupied_cells: Array[Vector2i] = []  # ← Все клетки здания!
 var original_scale: Vector2
 var original_modulate: Color
 var map_manager = null
@@ -31,6 +37,7 @@ func _ready():
 	await get_tree().process_frame
 	
 	map_manager = get_tree().get_first_node_in_group("map_manager")
+	
 	if map_manager == null:
 		printerr("❌ Не найден менеджер карты!")
 		return
@@ -38,20 +45,19 @@ func _ready():
 	current_cell = map_manager.get_cell_at_position(global_position)
 	global_position = map_manager.get_cell_world_position(current_cell)
 	
-	# ✅ СНАЧАЛА вызываем _on_building_ready() чтобы установить размер
-	_on_building_ready()
-	
-	# ✅ ПОТОМ вычисляем клетки с правильным размером
+	# ✅ ВЫЧИСЛЯЕМ ВСЕ КЛЕТКИ ЗДАНИЯ
 	_calculate_occupied_cells()
 	
-	# ✅ И регистрируем все клетки
+	# ✅ РЕГИСТРАЦИЯ ЗДАНИЯ (передаём все клетки!)
 	map_manager.register_building(self, current_cell, occupied_cells)
-	
+	add_to_group("buildings")
 	current_health = max_health
 	
+	_apply_faction_visuals()
+	
 	print("🏗️ Здание создано: ", name, " | Размер: ", building_size, " | Клетки: ", occupied_cells)
-
-# ✅ Удали вызов _on_building_ready() отсюда!
+	
+	_on_building_ready()
 
 # ✅ НОВАЯ ФУНКЦИЯ: Расчёт всех клеток здания
 func _calculate_occupied_cells():
@@ -66,6 +72,21 @@ func _calculate_occupied_cells():
 			occupied_cells.append(cell)
 	
 	print("🔍 Занимает клеток: ", occupied_cells.size())
+
+# ✅ Остальные функции без изменений...
+
+# ✅ НОВАЯ ФУНКЦИЯ: Применяем текстуру фракции
+func _apply_faction_visuals():
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite:
+		if faction == 0:
+			if texture_faction_0:
+				sprite.texture = texture_faction_0
+				print("🔵 Установлена текстура Player 0")
+		else:
+			if texture_faction_1:
+				sprite.texture = texture_faction_1
+				print("🔴 Установлена текстура Player 1")
 
 func select_building():
 	# Снимаем выделение со всех юнитов
@@ -141,7 +162,7 @@ func destroy():
 	print("💀 ", name, " разрушено!")
 	
 	if map_manager:
-		map_manager.unregister_building(current_cell, occupied_cells)  # ← Передаём клетки
+		map_manager.unregister_building(current_cell)
 	
 	queue_free()
 
@@ -149,4 +170,6 @@ func _on_building_ready():
 	pass
 
 func _on_production_complete():
+	pass
+func update_building():
 	pass

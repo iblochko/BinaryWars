@@ -49,6 +49,7 @@ func start_turn():
 	
 	emit_signal("turn_started", current_turn, current_faction)
 	emit_signal("phase_changed", "player_action")
+	
 
 # === ЗАВЕРШЕНИЕ ХОДА ===
 func end_turn():
@@ -69,6 +70,7 @@ func end_turn():
 	# Снимаем выделение со всех зданий
 	var all_buildings = get_tree().get_nodes_in_group("buildings")
 	for building in all_buildings:
+		building.update_building()
 		if building.is_selected:
 			building.deselect_building()
 	

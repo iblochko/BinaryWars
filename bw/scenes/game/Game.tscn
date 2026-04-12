@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://dous1v2aji7b7" path="res://scenes/ui/TurnUI.tscn" id="4_7qcb4"]
 [ext_resource type="PackedScene" uid="uid://d304ca4mjiicp" path="res://scenes/ui/ActionPanel.tscn" id="5_lyhax"]
 [ext_resource type="PackedScene" uid="uid://dmi2wpvpaqp4p" path="res://barracks.tscn" id="7_gg4pt"]
+[ext_resource type="Texture2D" uid="uid://dll7k5fyv4wl4" path="res://assets/sprites/buildings/barracks0.png" id="8_wnrko"]
+[ext_resource type="Texture2D" uid="uid://cfq6wvr24r4ak" path="res://assets/sprites/buildings/barracks1.png" id="9_qf6a8"]
 
 [node name="Game" type="Node2D" unique_id=872508359]
 position = Vector2(-1, -1)
@@ -16,13 +18,22 @@ position = Vector2(-1, -1)
 [node name="Units" type="Node2D" parent="." unique_id=202485634]
 
 [node name="Onerrior" parent="Units" unique_id=156615112 instance=ExtResource("2_m44fu")]
-position = Vector2(-1118, -600)
+position = Vector2(481, -213)
 
 [node name="Onerrior2" parent="Units" unique_id=961222461 instance=ExtResource("2_m44fu")]
-position = Vector2(-1118, -530)
+position = Vector2(482, -599)
 
 [node name="Zerrior" parent="Units" unique_id=1391086507 instance=ExtResource("3_365ku")]
-position = Vector2(-931, -541)
+position = Vector2(-164, -602)
+
+[node name="Onerrior3" parent="Units" unique_id=169862691 instance=ExtResource("2_m44fu")]
+position = Vector2(492, -393)
+
+[node name="Zerrior2" parent="Units" unique_id=780153331 instance=ExtResource("3_365ku")]
+position = Vector2(-161, -410)
+
+[node name="Zerrior3" parent="Units" unique_id=514701478 instance=ExtResource("3_365ku")]
+position = Vector2(-162, -217)
 
 [node name="TurnManager" type="Node" parent="." unique_id=1097150598]
 script = ExtResource("3_7qcb4")
@@ -35,4 +46,12 @@ layer = 3
 [node name="Buildings" type="Node2D" parent="." unique_id=1941771694]
 
 [node name="Barracks" parent="Buildings" unique_id=1296725902 instance=ExtResource("7_gg4pt")]
-position = Vector2(-608, -406)
+position = Vector2(-351, -409)
+unit_scene = ExtResource("3_365ku")
+texture_faction_0 = ExtResource("8_wnrko")
+
+[node name="Barracks2" parent="Buildings" unique_id=1158677687 instance=ExtResource("7_gg4pt")]
+position = Vector2(733, -360)
+unit_scene = ExtResource("2_m44fu")
+faction = 1
+texture_faction_1 = ExtResource("9_qf6a8")
