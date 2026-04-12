@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://dkijjwmys1fsq"]
+
+[ext_resource type="Script" uid="uid://blahi6kxb43mj" path="res://scripts/Menu/TutorialPopup.gd" id="1_4ys5h"]
+
+[node name="TutorialPopup" type="Control" unique_id=1917275876]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 86.0
+offset_top = 44.0
+offset_right = 86.0
+offset_bottom = 44.0
+script = ExtResource("1_4ys5h")
+
+[node name="Background" type="ColorRect" parent="." unique_id=252647103]
+custom_minimum_size = Vector2(1000, 500)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.6901961, 0.1882353, 0.34509805, 1)
+
+[node name="Panel" type="Panel" parent="." unique_id=421343276]
+custom_minimum_size = Vector2(1000, 500)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=580167549]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TutorialText" type="TextEdit" parent="Panel/VBoxContainer" unique_id=795505895]
+custom_minimum_size = Vector2(1000, 400)
+layout_mode = 2
+text = "📖 ТУТОРИАЛ
+
+🎯 ЦЕЛЬ ИГРЫ:
+Уничтожь все здания и юнитов противника!
+
+🏃 ДВИЖЕНИЕ:
+• ЛКМ по юниту → выделение
+• ЛКМ по клетке → перемещение
+• У каждого юнита есть очки хода (🚶)
+
+⚔️ АТАКА:
+• Кнопка \"Атака\" или клавиша A
+• ПКМ по врагу → нанесение урона
+• У юнитов есть лимит атак (⚔️)
+
+🏗️ ЗДАНИЯ:
+• Казарма (3×3 клетки) → производит юнитов
+• Клик по зданию → кнопка \"Произвести\"
+• Юниты появляются вокруг казармы
+
+🛡️ ЗАЩИТА:
+• Кнопка \"Защита\" или клавиша D
+• Пропуск хода → клавиша Space
+
+🔄 ХОДЫ:
+• Игрок 1 (Onerrior) → красный цвет
+• Игрок 0 (Zerrior) → синий цвет
+• Кнопка \"Завершить ход\" или клавиша T
+
+💡 СОВЕТЫ:
+• Защищай свои казармы!
+• Атакуй здания врага
+• Используй рельеф местности
+
+Нажми ESC или \"Закрыть\" чтобы закрыть"
+editable = false
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer" unique_id=1846423609]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+text = "❌ Закрыть"
