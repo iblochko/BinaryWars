@@ -40,14 +40,15 @@ func _update_ui():
 	
 	turn_label.text = "Ход: " + str(info.turn)
 	
-	if info.faction == 0:  # PLAYER
-		faction_label.text = "👤 Ваш ход"
+	# ✅ ИСПРАВЬ ПРОВЕРКУ — используем enum TurnManager!
+	if info.faction == turn_manager.Faction.PLAYER_0:
+		faction_label.text = "👤 Player 0 (Zerrior)"
 		faction_label.modulate = Color(0.5, 1, 0.5, 1)
 		end_turn_button.disabled = not info.is_active
-	else:  # ENEMY
-		faction_label.text = "🤖 Ход врага"
-		faction_label.modulate = Color(1, 0.5, 0.5, 1)
-		end_turn_button.disabled = true
+	else: 
+		faction_label.text = "👤 Player 1 (Onerrior)"
+		faction_label.modulate = Color(0.5, 1, 0.5, 1)
+		end_turn_button.disabled = not info.is_active
 
 func _on_turn_started(turn_number, faction):
 	_update_ui()

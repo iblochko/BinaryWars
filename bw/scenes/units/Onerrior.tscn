@@ -1,15 +1,46 @@
 [gd_scene format=3 uid="uid://dntm7gvnrjt1q"]
 
-[ext_resource type="Script" uid="uid://bnxoh3ybobjkf" path="res://scripts/units/Onerrior.gd" id="1_froux"]
 [ext_resource type="Texture2D" uid="uid://dwyn7v3qjwq8s" path="res://assets/sprites/units/pixel1.png" id="1_tm5vm"]
 [ext_resource type="Texture2D" uid="uid://h3lq8wytqtuu" path="res://assets/sprites/units/items/noob_sword.png" id="3_nwwhx"]
+
+[sub_resource type="GDScript" id="GDScript_rpwae"]
+script/source = "# Onerrior.gd
+extends \"res://scripts/units/Unit.gd\"  # ← Наследуемся от базового класса
+
+#уникальные характеристики
+@export var health: int = 100
+@export var attack: int = 10
+@export var defense: int = 5
+
+#инициализация
+func _on_unit_ready():
+	attack_range = 1
+	movement_points = 4
+	max_health = 100
+	faction = 1
+	print(\"⚔️ Воин создан! Здоровье: \", health, \" Атака: \", attack)
+	#добавить визуальные эффекты?
+
+func _get_distance_to(cell: Vector2i) -> int:
+	return abs(current_cell.x - cell.x) + abs(current_cell.y - cell.y)
+
+func die():
+	print(\"💀 Воин погиб!\")
+	if map_manager:
+		map_manager.unregister_unit(current_cell)
+	queue_free()
+
+#после движения
+func _on_movement_finished():
+	print(\" Воин завершил движение\")
+"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rpwae"]
 size = Vector2(64, 64)
 
 [node name="Onerrior" type="CharacterBody2D" unique_id=169862691]
 position = Vector2(34, 45)
-script = ExtResource("1_froux")
+script = SubResource("GDScript_rpwae")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=348075951]
 shape = SubResource("RectangleShape2D_rpwae")

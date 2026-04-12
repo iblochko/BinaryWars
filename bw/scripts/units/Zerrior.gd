@@ -11,7 +11,7 @@ func _on_unit_ready():
 	attack_range = 1
 	movement_points = 4
 	max_health = 100
-	faction = 1
+	faction = 0
 	print("⚔️ Воин создан! Здоровье: ", health, " Атака: ", attack)
 	#добавить визуальные эффекты?
 

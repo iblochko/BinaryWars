@@ -1,16 +1,19 @@
 extends "res://scripts/buildings/Building.gd"
-
 class_name BaseBarracks
 
 @export var production_cost: int = 50
-@export var unit_scene: PackedScene  # Сцена юнита для производства
+@export var unit_scene: PackedScene
 
 func _on_building_ready():
 	can_produce = true
 	max_health = 150
 	current_health = max_health
 	build_cost = 100
-	print("⚔️ Казарма готова! Стоимость: ", build_cost)
+	
+	# ✅ УСТАНАВЛИВАЕМ РАЗМЕР 3×3
+	building_size = Vector2i(3, 3)
+	
+	print("⚔️ Казарма готова! Размер: 3×3 | Стоимость: ", build_cost)
 
 func produce_unit():
 	if not can_produce:
@@ -21,12 +24,8 @@ func produce_unit():
 		printerr("❌ Не назначена сцена юнита!")
 		return
 	
-	# Проверяем стоимость (нужна система ресурсов)
-	# if resources < production_cost: return
-	
 	print("🏗️ Производство юнита...")
 	
-	# Создаём юнита рядом с казармой
 	var unit = unit_scene.instantiate()
 	var spawn_cell = _find_spawn_location()
 	
@@ -39,7 +38,6 @@ func produce_unit():
 		unit.queue_free()
 
 func _find_spawn_location() -> Vector2i:
-	# Ищем свободную клетку рядом
 	var directions = [
 		Vector2i(0, 1), Vector2i(0, -1),
 		Vector2i(1, 0), Vector2i(-1, 0)

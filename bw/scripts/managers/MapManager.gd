@@ -69,6 +69,9 @@ func _load_buildings_from_tilemap():
 	
 	print("🏗️ Найдено зданий: ", building_cells.size())
 	
+	# ✅ Отслеживаем уже созданные здания (для многоклеточных)
+	var created_buildings: Array = []
+	
 	for cell in building_cells:
 		var tile_id = tile_map.get_cell_source_id(2, cell)
 		var building_scene_path = ""
@@ -99,19 +102,23 @@ func _load_buildings_from_tilemap():
 						game_scene.add_child(buildings_node)
 					
 					buildings_node.add_child(building)
-					register_building(building, cell)
 					
+					# ✅ Регистрируем с occupied_cells (которые вычислятся в _ready())
+					# Но пока они не вычислены, поэтому регистрируем позже
 					print("✅ Здание создано: ", building.name, " на клетке ", cell)
-
 # === РЕГИСТРАЦИЯ ЗДАНИЙ ===
-func register_building(building, cell: Vector2i):
-	buildings_on_map[cell] = building
-	print("🏗️ Здание зарегистрировано на клетке: ", cell)
-	print("🔍 buildings_on_map keys: ", buildings_on_map.keys())  # ← Отладка
+func register_building(building, cell: Vector2i, occupied_cells: Array[Vector2i] = []):
+	# ✅ Регистрируем ВСЕ клетки здания
+	for occ_cell in occupied_cells:
+		buildings_on_map[occ_cell] = building
+	
+	print("🏗️ Здание зарегистрировано на клетках: ", occupied_cells)
 
-func unregister_building(cell: Vector2i):
-	if buildings_on_map.has(cell):
-		buildings_on_map.erase(cell)
+func unregister_building(cell: Vector2i, occupied_cells: Array[Vector2i] = []):
+	# ✅ Удаляем ВСЕ клетки здания
+	for occ_cell in occupied_cells:
+		if buildings_on_map.has(occ_cell):
+			buildings_on_map.erase(occ_cell)
 
 # === ПРОВЕРКА ЗАНЯТОСТИ (юниты + здания) ===
 func is_cell_occupied(cell: Vector2i) -> bool:
@@ -260,17 +267,29 @@ func highlight_attack_cells(center_cell: Vector2i, attack_range: int, attacker: 
 	
 	var cells = get_cells_in_range(center_cell, attack_range)
 	
+	# ✅ Отслеживаем уже подсвеченные здания
+	var highlighted_buildings: Array = []
+	
 	for cell in cells:
+		# ✅ Подсветка юнитов (с проверкой фракции!)
 		if units_on_map.has(cell):
 			var unit = units_on_map[cell]
-			
-			if unit != attacker:
+			if unit != attacker:  # ← ПРОВЕРКА ФРАКЦИИ!
 				tile_map.set_cell(1, cell, 0, Vector2i(0, 0))
 				highlighted_cells.append(cell)
+		
+		# ✅ Подсветка зданий
+		elif buildings_on_map.has(cell):
+			var building = buildings_on_map[cell]
+			if not highlighted_buildings.has(building):
+				# Подсвечиваем все клетки здания
+				for occ_cell in building.occupied_cells:
+					tile_map.set_cell(1, occ_cell, 0, Vector2i(0, 0))
+					highlighted_cells.append(occ_cell)
+				highlighted_buildings.append(building)
 	
-	# Красный оттенок для атаки
 	tile_map.set_layer_modulate(1, Color(1, 0.3, 0.3, 0.5))
-
+	
 func clear_highlight():
 	for cell in highlighted_cells:
 		tile_map.set_cell(1, cell, -1)
@@ -304,17 +323,25 @@ func _input(event):
 			if units_on_map.has(cell):
 				var unit = units_on_map[cell]
 				print("  На клетке есть юнит: ", unit.name)
-				# Снимаем выделение со всех зданий
-				for b_cell in buildings_on_map:
-					var b = buildings_on_map[b_cell]
-					if b.is_selected:
-						b.deselect_building()
-				
+		
+		# ✅ ПРОВЕРКА ФРАКЦИИ — нельзя выделять чужих юнитов!
+				var turn_manager = get_tree().get_first_node_in_group("turn_manager")
+				if turn_manager:
+					if turn_manager.current_faction == turn_manager.Faction.PLAYER_0:
+						if unit.faction != 0:
+							print("⚠️ Нельзя выбрать чужого юнита (Player 0)!")
+							return
+					elif turn_manager.current_faction == turn_manager.Faction.PLAYER_1:
+						if unit.faction != 1:
+							print("⚠️ Нельзя выбрать чужого юнита (Player 1)!")
+							return
+		
 				unit.select_unit()
 				highlight_available_cells(unit.current_cell, unit.current_movement, unit)
 				emit_signal("unit_selected", unit)
+		
 			elif buildings_on_map.has(cell):
-				# ✅ Клик по зданию
+		# ✅ Для зданий тоже можно добавить проверку фракции (опционально)
 				var building = buildings_on_map[cell]
 				print("  На клетке есть здание: ", building.name)
 				building.select_building()
@@ -329,10 +356,6 @@ func handle_right_click(cell: Vector2i):
 	var selected_unit = get_selected_unit()
 	
 	if not selected_unit:
-		for b_cell in buildings_on_map:
-			var b = buildings_on_map[b_cell]
-			if b.is_selected:
-				b.deselect_building()
 		clear_highlight()
 		print("❌ Нет выбранного юнита")
 		return
@@ -353,22 +376,26 @@ func handle_right_click(cell: Vector2i):
 					print("Атаки кончились")
 			else:
 				print("❌ Нельзя атаковать себя!")
-		# ✅ АТАКА ПО ЗДАНИЯМ
+		
+		# ✅ АТАКА ПО ЗДАНИЯМ (убери проверку faction!)
 		elif buildings_on_map.has(cell):
 			var target_building = buildings_on_map[cell]
 			
-			if target_building.faction != selected_unit.faction:
-				if selected_unit.current_attack_amount > 0:
-					selected_unit.attack_target(target_building)
-					selected_unit.current_attack_amount -= 1
-					var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
-					if action_panel:
-						action_panel.update_health()
-					return
-				else:
-					print("Атаки кончились")
+			# ❌ УБЕРИ ЭТУ ПРОВЕРКУ:
+			# if target_building.faction != selected_unit.faction:
+			
+			# ✅ Просто атакуем:
+			if selected_unit.current_attack_amount > 0:
+				selected_unit.attack_target(target_building)  # ← Теперь работает с зданиями!
+				selected_unit.current_attack_amount -= 1
+				var action_panel = get_tree().current_scene.get_node_or_null("ActionPanel")
+				if action_panel:
+					action_panel.update_health()
+				return
 			else:
-				print("❌ Нельзя атаковать союзное здание!")
+				print("Атаки кончились")
+			# else:
+			#     print("❌ Нельзя атаковать союзное здание!")
 		else:
 			print("❌ В клетке нет цели!")
 		
@@ -378,7 +405,6 @@ func handle_right_click(cell: Vector2i):
 		clear_highlight()
 		selected_unit.deselect()
 		print("🚫 Выделение снято")
-
 func _is_mouse_over_ui() -> bool:
 	var mouse_pos = get_viewport().get_mouse_position()
 	
@@ -407,9 +433,16 @@ func handle_cell_click(cell: Vector2i):
 	
 	var turn_manager = get_tree().get_first_node_in_group("turn_manager")
 	if turn_manager:
-		if turn_manager.current_faction != turn_manager.Faction.PLAYER:
-			print("⚠️ Сейчас не ваш ход!")
-			return
+		# ✅ ПРОВЕРКА: сейчас ход этой фракции?
+		if turn_manager.current_faction == turn_manager.Faction.PLAYER_0:
+			if selected_unit.faction != 0:
+				print("⚠️ Сейчас ход Player 0!")
+				return
+		elif turn_manager.current_faction == turn_manager.Faction.PLAYER_1:
+			if selected_unit.faction != 1:
+				print("⚠️ Сейчас ход Player 1!")
+				return
+		
 		if not turn_manager.is_turn_active:
 			print("⚠️ Ход завершён!")
 			return

@@ -115,7 +115,6 @@ func _on_action_pressed():
 	print("⏳ Пропуск хода")
 	current_unit.current_movement = 0
 	current_unit.deselect()
-	hide_panel()  # ← Закрыть панель
 
 func _on_close_pressed():
 	hide_panel()
@@ -155,7 +154,6 @@ func _on_attack_pressed():
 		# Производство юнита
 		if current_building is BaseBarracks:
 			current_building.produce_unit()
-			hide_panel()
 	elif current_unit:
 		# Атака юнитом
 			current_unit.enable_attack_mode()
@@ -164,7 +162,6 @@ func _on_attack_pressed():
 			if map_manager:
 				map_manager.set_process_input(true)
 				current_unit.enable_attack_mode()
-	hide_panel()
 
 func update_health():
 	if current_unit:

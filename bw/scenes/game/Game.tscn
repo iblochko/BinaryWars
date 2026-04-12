@@ -31,12 +31,8 @@ script = ExtResource("3_7qcb4")
 
 [node name="ActionPanel" parent="." unique_id=1637086703 instance=ExtResource("5_lyhax")]
 layer = 3
-hotkey_attack = null
-hotkey_defend = null
-hotkey_wait = null
-hotkey_close = null
 
 [node name="Buildings" type="Node2D" parent="." unique_id=1941771694]
 
 [node name="Barracks" parent="Buildings" unique_id=1296725902 instance=ExtResource("7_gg4pt")]
-position = Vector2(-594, -400)
+position = Vector2(-608, -406)
