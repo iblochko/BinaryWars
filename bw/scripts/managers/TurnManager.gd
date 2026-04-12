@@ -7,13 +7,13 @@ signal phase_changed(phase)
 
 # === Фракции ===
 enum Faction {
-	PLAYER,
-	ENEMY
+	PLAYER_0,  # Zerrior (команда 0)
+	PLAYER_1   # Onerrior (команда 1)
 }
 
 # === Состояние ===
 var current_turn: int = 1
-var current_faction: Faction = Faction.PLAYER
+var current_faction: Faction = Faction.PLAYER_1  # ✅ Начинаем с Player 1
 var is_turn_active: bool = true
 var units_moved: int = 0
 var total_units: int = 0
@@ -23,7 +23,7 @@ var total_units: int = 0
 
 func _ready():
 	add_to_group("turn_manager")
-	print(" TurnManager готов!")
+	print("🔄 TurnManager готов!")
 	
 	# Начинаем первый ход
 	start_turn()
@@ -37,17 +37,19 @@ func start_turn():
 	units_moved = 0
 	total_units = 0
 	
-	# Считаем юнитов текущей фракции
+	# Считаем юнитов текущей фракции и восстанавливаем ходы
 	var all_units = get_tree().get_nodes_in_group("units")
 	for unit in all_units:
 		if _is_unit_faction(unit, current_faction):
 			total_units += 1
-			# Восстанавливаем ходы
+			# Восстанавливаем ходы и атаки
 			unit.reset_movement()
 			unit.reset_attacks()
+			print("  ✅ ", unit.name, " получил ходы: ", unit.current_movement, " | Атаки: ", unit.current_attack_amount)
 	
 	emit_signal("turn_started", current_turn, current_faction)
-	emit_signal("phase_changed", "player_action" if current_faction == Faction.PLAYER else "enemy_action")
+	emit_signal("phase_changed", "player_action")
+	
 
 # === ЗАВЕРШЕНИЕ ХОДА ===
 func end_turn():
@@ -65,6 +67,13 @@ func end_turn():
 	for unit in all_units:
 		unit.deselect()
 	
+	# Снимаем выделение со всех зданий
+	var all_buildings = get_tree().get_nodes_in_group("buildings")
+	for building in all_buildings:
+		building.update_building()
+		if building.is_selected:
+			building.deselect_building()
+	
 	# Очищаем подсветку
 	var map_manager = get_tree().get_first_node_in_group("map_manager")
 	if map_manager:
@@ -77,58 +86,40 @@ func end_turn():
 # === СЛЕДУЮЩИЙ ХОД ===
 func _next_turn():
 	# Смена фракции
-	if current_faction == Faction.PLAYER:
-		current_faction = Faction.ENEMY
-		
-		# Если есть вражеский ход
-		if allow_enemy_turn:
-			start_turn()
-			# Здесь для врага
-			await _enemy_turn()
-		else:
-			# Сразу обратно к игроку
-			current_turn += 1
-			current_faction = Faction.PLAYER
-			start_turn()
-	else:
-		current_turn += 1
-		current_faction = Faction.PLAYER
+	if current_faction == Faction.PLAYER_1:
+		# Player 1 → Player 0
+		current_faction = Faction.PLAYER_0
 		start_turn()
-
-# === ПРОСТОЙ AI ВРАГА (заглушка) ===
-func _enemy_turn():
-	print("🤖 Ход врага...")
-	
-	# TODO: Добавить логику вражеских юнитов
-	# Например: случайные движения или атака
-	
-	await get_tree().create_timer(2.0).timeout
-	print("🤖 Враг завершил ход")
-	
-	# Автоматически завершаем ход врага
-	end_turn()
+	else:
+		# Player 0 → Player 1 (новый ход)
+		current_turn += 1
+		current_faction = Faction.PLAYER_1
+		start_turn()
 
 # === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
 func _get_faction_name(faction: Faction) -> String:
 	match faction:
-		Faction.PLAYER:
-			return "Игрок"
-		Faction.ENEMY:
-			return "Враг"
+		Faction.PLAYER_0:
+			return "Player 0 (Zerrior)"
+		Faction.PLAYER_1:
+			return "Player 1 (Onerrior)"
 		_:
 			return "Неизвестно"
 
 func _is_unit_faction(unit, faction: Faction) -> bool:
-	# Проверяем фракцию юнита (можно добавить свойство faction в Unit.gd)
-	# Пока считаем всех юнитов игрока
-	return true  # TODO: Добавить проверку фракции
+	# ✅ ПРОВЕРЯЕМ faction юнита (0 или 1)
+	if faction == Faction.PLAYER_0:
+		return unit.faction == 0
+	elif faction == Faction.PLAYER_1:
+		return unit.faction == 1
+	return false
 
 # === КНОПКА ЗАВЕРШИТЬ ХОД (вызывается из UI) ===
 func on_end_turn_button_pressed():
-	if current_faction == Faction.PLAYER and is_turn_active:
+	if is_turn_active:
 		end_turn()
 	else:
-		print("⚠️ Сейчас не ваш ход!")
+		print("⚠️ Ход уже завершён!")
 
 # === СТАТИСТИКА ===
 func get_turn_info() -> Dictionary:

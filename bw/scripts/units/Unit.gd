@@ -6,12 +6,12 @@ class_name BaseUnit
 @export var move_speed: float = 300.0
 @export var max_health: int = 100
 @export var max_attack_amount: int = 2
+@export var faction: int = 1
 
 var current_attack_amount: int = 2
 var attack_range: int = 1  # Можно переопределить в дочерних классах
 var attack_damage: int = 10  # Можно переопределить в дочерних классах
 var current_health: int = 100
-var faction: int = 0
 var is_selected: bool = false
 var is_moving: bool = false
 var current_movement: int = 2
@@ -40,8 +40,6 @@ func _ready():
 	global_position = map_manager.get_cell_world_position(current_cell)
 	map_manager.register_unit(self, current_cell)
 	add_to_group("units")
-	
-	faction = 0
 	
 	_on_unit_ready()
 	current_movement = movement_points
@@ -110,7 +108,7 @@ func disable_attack_mode():
 	if map_manager:
 		map_manager.clear_highlight()
 
-func attack_target(target: BaseUnit):
+func attack_target(target):
 	if target == null:
 		return
 	
@@ -119,8 +117,7 @@ func attack_target(target: BaseUnit):
 		return
 	
 	# Проверяем дистанцию
-	var distance = abs(current_cell.x - target.current_cell.x) + abs(current_cell.y - target.current_cell.y)
-	
+	var distance = _calculate_attack_distance(target)
 	if distance > attack_range:
 		print("❌ Цель слишком далеко! Дистанция: ", distance, " / ", attack_range)
 		return
@@ -132,9 +129,31 @@ func attack_target(target: BaseUnit):
 	
 	# Выходим из режима атаки
 	disable_attack_mode()
-	deselect()
 
-# В deselect() добавь сброс режима атаки:
+# ✅ НОВАЯ ФУНКЦИЯ: Расчёт дистанции с учётом размера здания
+func _calculate_attack_distance(target) -> int:
+	var target_cells: Array[Vector2i] = []
+	
+	# ✅ ПРАВИЛЬНАЯ ПРОВЕРКА: есть ли у цели occupied_cells
+	if target is BaseBuilding:
+		# Здание — используем все клетки
+		if target.occupied_cells.size() > 0:
+			target_cells = target.occupied_cells
+		else:
+			target_cells = [target.current_cell]
+	else:
+		# Юнит — одна клетка
+		target_cells = [target.current_cell]
+	
+	# Находим минимальную дистанцию до любой клетки цели
+	var min_distance = 999999
+	for target_cell in target_cells:
+		var distance = abs(current_cell.x - target_cell.x) + abs(current_cell.y - target_cell.y)
+		if distance < min_distance:
+			min_distance = distance
+	
+	return min_distance
+
 func deselect():
 	is_selected = false
 	is_moving = false
@@ -194,10 +213,7 @@ func _on_path_completed():
 	
 	print("✅ Прибыл на: ", current_cell, " | Ходов осталось: ", current_movement)
 	
-	if current_movement <= 0:
-		deselect()
-	else:
-		_update_visuals()
+	_update_visuals()
 
 func move_along_path(path: Array[Vector2i]):
 	if path.is_empty():
